@@ -80,20 +80,20 @@ if torch.npu.is_available():
 
 ### SFT LoRA Fine-tuning (4-card DP+FSDP)
 
-**Example**: [cookbook/sft/lora_npu.py](https://github.com/modelscope/twinkle/blob/main/cookbook/sft/lora_npu.py)
+**Example**: [cookbook/transformers/fsdp2.py](https://github.com/modelscope/twinkle/blob/main/cookbook/transformers/fsdp2.py)
 
 ```bash
 export ASCEND_RT_VISIBLE_DEVICES=0,1,2,3
-python cookbook/sft/lora_npu.py
+python cookbook/transformers/fsdp2.py
 ```
 
 ### GRPO Reinforcement Learning (8-card)
 
-**Example**: [cookbook/grpo/lora_npu.py](https://github.com/modelscope/twinkle/blob/main/cookbook/grpo/lora_npu.py)
+**Example**: [cookbook/rl/grpo.py](https://github.com/modelscope/twinkle/blob/main/cookbook/rl/grpo.py)
 
 ```bash
 export ASCEND_RT_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
-python cookbook/grpo/lora_npu.py
+python cookbook/rl/grpo.py
 ```
 
 ### DP + FSDP Configuration
@@ -125,13 +125,13 @@ device_mesh = DeviceMesh(
 
 | Feature | GPU | NPU | Example | Notes |
 |---------|-----|-----|---------|-------|
-| SFT + LoRA | ✅ | ✅ | cookbook/sft/lora_npu.py | Verified |
-| GRPO | ✅ | ✅ | cookbook/grpo/lora_npu.py | Verified |
-| DP Parallelism | ✅ | ✅ | cookbook/sft/lora_npu.py | Verified |
-| FSDP Parallelism | ✅ | ✅ | cookbook/sft/lora_npu.py | Verified |
-| Ray Distributed | ✅ | ✅ | cookbook/sft/lora_npu.py | Verified |
-| TorchSampler | ✅ | ✅ | cookbook/grpo/lora_npu.py | Verified |
-| vLLMSampler | ✅ | ✅ | cookbook/grpo/lora_npu.py | Verified |
+| SFT + LoRA | ✅ | ✅ | cookbook/transformers/fsdp2.py | Verified |
+| GRPO | ✅ | ✅ | cookbook/rl/grpo.py | Verified |
+| DP Parallelism | ✅ | ✅ | cookbook/transformers/fsdp2.py | Verified |
+| FSDP Parallelism | ✅ | ✅ | cookbook/transformers/fsdp2.py | Verified |
+| Ray Distributed | ✅ | ✅ | cookbook/transformers/fsdp2.py | Verified |
+| TorchSampler | ✅ | ✅ | cookbook/rl/grpo.py | Verified |
+| vLLMSampler | ✅ | ✅ | cookbook/rl/grpo.py | Verified |
 | Full Fine-tuning | ✅ | 🚧 | - | To be verified |
 | QLoRA | ✅ | ❌ | - | Quantization not supported |
 | DPO | ✅ | 🚧 | - | To be verified |

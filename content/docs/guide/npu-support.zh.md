@@ -80,20 +80,20 @@ if torch.npu.is_available():
 
 ### SFT LoRA 微调（4 卡 DP+FSDP）
 
-**示例**：[cookbook/sft/lora_npu.py](https://github.com/modelscope/twinkle/blob/main/cookbook/sft/lora_npu.py)
+**示例**：[cookbook/transformers/fsdp2.py](https://github.com/modelscope/twinkle/blob/main/cookbook/transformers/fsdp2.py)
 
 ```bash
 export ASCEND_RT_VISIBLE_DEVICES=0,1,2,3
-python cookbook/sft/lora_npu.py
+python cookbook/transformers/fsdp2.py
 ```
 
 ### GRPO 强化学习（8 卡）
 
-**示例**：[cookbook/grpo/lora_npu.py](https://github.com/modelscope/twinkle/blob/main/cookbook/grpo/lora_npu.py)
+**示例**：[cookbook/rl/grpo.py](https://github.com/modelscope/twinkle/blob/main/cookbook/rl/grpo.py)
 
 ```bash
 export ASCEND_RT_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
-python cookbook/grpo/lora_npu.py
+python cookbook/rl/grpo.py
 ```
 
 ### DP + FSDP 配置
@@ -125,13 +125,13 @@ device_mesh = DeviceMesh(
 
 | 功能 | GPU | NPU | 示例 | 备注 |
 |------|-----|-----|------|------|
-| SFT + LoRA | ✅ | ✅ | cookbook/sft/lora_npu.py | 已验证 |
-| GRPO | ✅ | ✅ | cookbook/grpo/lora_npu.py | 已验证 |
-| DP 并行 | ✅ | ✅ | cookbook/sft/lora_npu.py | 已验证 |
-| FSDP 并行 | ✅ | ✅ | cookbook/sft/lora_npu.py | 已验证 |
-| Ray 分布式 | ✅ | ✅ | cookbook/sft/lora_npu.py | 已验证 |
-| TorchSampler | ✅ | ✅ | cookbook/grpo/lora_npu.py | 已验证 |
-| vLLMSampler | ✅ | ✅ | cookbook/grpo/lora_npu.py | 已验证 |
+| SFT + LoRA | ✅ | ✅ | cookbook/transformers/fsdp2.py | 已验证 |
+| GRPO | ✅ | ✅ | cookbook/rl/grpo.py | 已验证 |
+| DP 并行 | ✅ | ✅ | cookbook/transformers/fsdp2.py | 已验证 |
+| FSDP 并行 | ✅ | ✅ | cookbook/transformers/fsdp2.py | 已验证 |
+| Ray 分布式 | ✅ | ✅ | cookbook/transformers/fsdp2.py | 已验证 |
+| TorchSampler | ✅ | ✅ | cookbook/rl/grpo.py | 已验证 |
+| vLLMSampler | ✅ | ✅ | cookbook/rl/grpo.py | 已验证 |
 | 全参数微调 | ✅ | 🚧 | - | 待验证 |
 | QLoRA | ✅ | ❌ | - | 量化不支持 |
 | DPO | ✅ | 🚧 | - | 待验证 |
