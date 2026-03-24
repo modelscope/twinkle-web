@@ -1,0 +1,14 @@
+name = "Twinkle Documentation"
+license = "Apache-2.0"
+licenselink = "https://github.com/modelscope/twinkle/blob/main/LICENSE"
+description = "Technical blog and documentation for Twinkle — a lightweight, client-server LLM training framework."
+
+homepage = "https://github.com/modelscope/twinkle-web"
+demosite = "https://modelscope.github.io/twinkle-web/"
+
+tags = ["ai", "training", "documentation", "blog", "technical", "llm", "pytorch", "ray"]
+features = ["secure", "fast", "search", "dark mode"]
+
+[author]
+  name = "ModelScope Team"
+  homepage = "https://github.com/modelscope"

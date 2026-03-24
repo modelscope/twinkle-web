@@ -1,0 +1,23 @@
+schema: hugoblox/author/v1
+slug: me
+is_owner: true
+name:
+  display: ModelScope Team
+  given: ModelScope
+  family: Team
+status:
+  icon: "🔬"
+role: AI Research & Engineering
+bio: Building open-source AI infrastructure for the community. Twinkle is our lightweight LLM training framework.
+affiliations:
+  - name: ModelScope
+    url: https://github.com/modelscope
+links:
+  - icon: at-symbol
+    url: mailto:contact@modelscope.cn
+    label: E-mail
+  - icon: brands/github
+    url: https://github.com/modelscope/twinkle
+  - icon: rss
+    url: ./post/index.xml
+    label: Subscribe to blog via RSS feed
