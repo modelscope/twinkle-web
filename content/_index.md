@@ -83,6 +83,53 @@ sections:
         padding: ["1rem", 0, "2rem", 0]
 
   # ═══════════════════════════════════════════════════════════════════════════
+  # CODE EXAMPLE - Show don't tell
+  # ═══════════════════════════════════════════════════════════════════════════
+  - block: markdown
+    content:
+      title: ""
+      text: |
+        <div style="max-width: 800px; margin: 0 auto;">
+        
+        ## Train in 20 Lines
+        
+        ```python
+        import twinkle
+        from peft import LoraConfig
+        from twinkle import DeviceGroup
+        from twinkle.dataloader import DataLoader
+        from twinkle.dataset import Dataset, DatasetMeta
+        from twinkle.model import TransformersModel
+        
+        # Choose your runtime: 'local' (torchrun), 'ray', or 'http'
+        twinkle.initialize(mode='ray', groups=[DeviceGroup(name='default', ranks=8)])
+        
+        # Prepare data — works with ModelScope and Hugging Face
+        dataset = Dataset(dataset_meta=DatasetMeta('ms://swift/self-cognition'))
+        dataset.set_template('Template', model_id='ms://Qwen/Qwen3.5-4B')
+        dataset.encode()
+        
+        # Create model with LoRA
+        model = TransformersModel(model_id='ms://Qwen/Qwen3.5-4B', remote_group='default')
+        model.add_adapter_to_model('default', LoraConfig(r=8, lora_alpha=32))
+        model.set_optimizer(optimizer_cls='AdamW', lr=1e-4)
+        
+        # Train — you control the loop
+        for batch in DataLoader(dataset=dataset, batch_size=8):
+            model.forward_backward(inputs=batch)
+            model.clip_grad_and_step()
+        
+        model.save('my-finetuned-model')
+        ```
+        
+        </div>
+    design:
+      columns: '1'
+      css_class: "bg-gray-50"
+      spacing:
+        padding: ["3rem", 0, "3rem", 0]
+
+  # ═══════════════════════════════════════════════════════════════════════════
   # ARCHITECTURE - Visual showcase
   # ═══════════════════════════════════════════════════════════════════════════
   - block: markdown
@@ -147,53 +194,6 @@ sections:
           description: |
             Qwen 3.5/3/2.5, DeepSeek R1/V2, GLM-4, InternLM2, and more. Both Hugging Face and ModelScope model hubs.
     design:
-      spacing:
-        padding: ["3rem", 0, "3rem", 0]
-
-  # ═══════════════════════════════════════════════════════════════════════════
-  # CODE EXAMPLE - Show don't tell
-  # ═══════════════════════════════════════════════════════════════════════════
-  - block: markdown
-    content:
-      title: ""
-      text: |
-        <div style="max-width: 800px; margin: 0 auto;">
-        
-        ## Train in 20 Lines
-        
-        ```python
-        import twinkle
-        from peft import LoraConfig
-        from twinkle import DeviceGroup
-        from twinkle.dataloader import DataLoader
-        from twinkle.dataset import Dataset, DatasetMeta
-        from twinkle.model import TransformersModel
-        
-        # Choose your runtime: 'local' (torchrun), 'ray', or 'http'
-        twinkle.initialize(mode='ray', groups=[DeviceGroup(name='default', ranks=8)])
-        
-        # Prepare data — works with ModelScope and Hugging Face
-        dataset = Dataset(dataset_meta=DatasetMeta('ms://swift/self-cognition'))
-        dataset.set_template('Template', model_id='ms://Qwen/Qwen3.5-4B')
-        dataset.encode()
-        
-        # Create model with LoRA
-        model = TransformersModel(model_id='ms://Qwen/Qwen3.5-4B', remote_group='default')
-        model.add_adapter_to_model('default', LoraConfig(r=8, lora_alpha=32))
-        model.set_optimizer(optimizer_cls='AdamW', lr=1e-4)
-        
-        # Train — you control the loop
-        for batch in DataLoader(dataset=dataset, batch_size=8):
-            model.forward_backward(inputs=batch)
-            model.clip_grad_and_step()
-        
-        model.save('my-finetuned-model')
-        ```
-        
-        </div>
-    design:
-      columns: '1'
-      css_class: "bg-gray-50"
       spacing:
         padding: ["3rem", 0, "3rem", 0]
 

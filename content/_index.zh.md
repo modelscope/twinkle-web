@@ -12,7 +12,7 @@ sections:
   # ═══════════════════════════════════════════════════════════════════════════
   - block: hero
     content:
-      title: '<span class="hero-title-with-logo"><img src="slogan.png" alt="Twinkle" class="hero-logo" /></span>'
+      title: '<span class="hero-title-with-logo"><img src="../slogan.png" alt="Twinkle" class="hero-logo" /></span>'
       text: |
         <p style="font-size: 1.5rem; font-weight: 500; margin-bottom: 0.5rem;">让你的模型闪闪发光 ✨</p>
         <p style="font-size: 1.1rem; color: #64748b;">一个框架，任意规模。从笔记本到千卡集群。</p>
@@ -83,6 +83,53 @@ sections:
         padding: ["1rem", 0, "2rem", 0]
 
   # ═══════════════════════════════════════════════════════════════════════════
+  # CODE EXAMPLE
+  # ═══════════════════════════════════════════════════════════════════════════
+  - block: markdown
+    content:
+      title: ""
+      text: |
+        <div style="max-width: 800px; margin: 0 auto;">
+        
+        ## 20 行代码开始训练
+        
+        ```python
+        import twinkle
+        from peft import LoraConfig
+        from twinkle import DeviceGroup
+        from twinkle.dataloader import DataLoader
+        from twinkle.dataset import Dataset, DatasetMeta
+        from twinkle.model import TransformersModel
+        
+        # 选择运行模式: 'local' (torchrun), 'ray', 或 'http'
+        twinkle.initialize(mode='ray', groups=[DeviceGroup(name='default', ranks=8)])
+        
+        # 准备数据 — 支持魔搭和 Hugging Face
+        dataset = Dataset(dataset_meta=DatasetMeta('ms://swift/self-cognition'))
+        dataset.set_template('Template', model_id='ms://Qwen/Qwen3.5-4B')
+        dataset.encode()
+        
+        # 创建带 LoRA 的模型
+        model = TransformersModel(model_id='ms://Qwen/Qwen3.5-4B', remote_group='default')
+        model.add_adapter_to_model('default', LoraConfig(r=8, lora_alpha=32))
+        model.set_optimizer(optimizer_cls='AdamW', lr=1e-4)
+        
+        # 训练 — 你掌控循环
+        for batch in DataLoader(dataset=dataset, batch_size=8):
+            model.forward_backward(inputs=batch)
+            model.clip_grad_and_step()
+        
+        model.save('my-finetuned-model')
+        ```
+        
+        </div>
+    design:
+      columns: '1'
+      css_class: "bg-gray-50"
+      spacing:
+        padding: ["3rem", 0, "3rem", 0]
+
+  # ═══════════════════════════════════════════════════════════════════════════
   # ARCHITECTURE
   # ═══════════════════════════════════════════════════════════════════════════
   - block: markdown
@@ -90,7 +137,7 @@ sections:
       title: ""
       text: |
         <div style="text-align: center; padding: 2rem 0;">
-          <img src="framework.jpg" alt="Twinkle 架构" style="max-width: 720px; width: 100%;" />
+          <img src="../framework.jpg" alt="Twinkle 架构" style="max-width: 720px; width: 100%;" />
         </div>
         
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; max-width: 900px; margin: 2rem auto;">
@@ -151,53 +198,6 @@ sections:
         padding: ["3rem", 0, "3rem", 0]
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # CODE EXAMPLE
-  # ═══════════════════════════════════════════════════════════════════════════
-  - block: markdown
-    content:
-      title: ""
-      text: |
-        <div style="max-width: 800px; margin: 0 auto;">
-        
-        ## 20 行代码开始训练
-        
-        ```python
-        import twinkle
-        from peft import LoraConfig
-        from twinkle import DeviceGroup
-        from twinkle.dataloader import DataLoader
-        from twinkle.dataset import Dataset, DatasetMeta
-        from twinkle.model import TransformersModel
-        
-        # 选择运行模式: 'local' (torchrun), 'ray', 或 'http'
-        twinkle.initialize(mode='ray', groups=[DeviceGroup(name='default', ranks=8)])
-        
-        # 准备数据 — 支持魔搭和 Hugging Face
-        dataset = Dataset(dataset_meta=DatasetMeta('ms://swift/self-cognition'))
-        dataset.set_template('Template', model_id='ms://Qwen/Qwen3.5-4B')
-        dataset.encode()
-        
-        # 创建带 LoRA 的模型
-        model = TransformersModel(model_id='ms://Qwen/Qwen3.5-4B', remote_group='default')
-        model.add_adapter_to_model('default', LoraConfig(r=8, lora_alpha=32))
-        model.set_optimizer(optimizer_cls='AdamW', lr=1e-4)
-        
-        # 训练 — 你掌控循环
-        for batch in DataLoader(dataset=dataset, batch_size=8):
-            model.forward_backward(inputs=batch)
-            model.clip_grad_and_step()
-        
-        model.save('my-finetuned-model')
-        ```
-        
-        </div>
-    design:
-      columns: '1'
-      css_class: "bg-gray-50"
-      spacing:
-        padding: ["3rem", 0, "3rem", 0]
-
-  # ═══════════════════════════════════════════════════════════════════════════
   # MULTI-TENANCY
   # ═══════════════════════════════════════════════════════════════════════════
   - block: markdown
@@ -209,7 +209,7 @@ sections:
         ## 多租户：N 个任务，1 个基座模型
         
         <div style="text-align: center; margin: 2rem 0;">
-          <img src="multi_lora.png" alt="多租户" style="max-width: 500px; width: 100%; display: block; margin: 0 auto;" />
+          <img src="../multi_lora.png" alt="多租户" style="max-width: 500px; width: 100%; display: block; margin: 0 auto;" />
         </div>
         
         在共享部署上运行完全不同的训练任务：
