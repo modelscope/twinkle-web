@@ -1,8 +1,6 @@
 ---
 title: "Why Open Source Matters: Twinkle vs Closed-Source Training Platforms"
 date: 2026-03-20
-authors:
-  - admin
 tags:
   - Open Source
   - Enterprise

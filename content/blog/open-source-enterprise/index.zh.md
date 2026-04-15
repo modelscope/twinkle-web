@@ -1,8 +1,6 @@
 ---
 title: "为什么开源很重要：Twinkle vs 闭源训练平台"
 date: 2026-03-20
-authors:
-  - admin
 tags:
   - 开源
   - 企业级
