@@ -24,7 +24,7 @@ twinkle.initialize(mode='local', global_device_mesh=device_mesh)
 
 def train():
     dataset = Dataset(dataset_meta=DatasetMeta('ms://swift/self-cognition'))
-    dataset.set_template('Template', model_id='ms://Qwen/Qwen3.5-4B')
+    dataset.set_template('Qwen3_5Template', model_id='ms://Qwen/Qwen3.5-4B')
     dataset.map(SelfCognitionProcessor('Twinkle', 'ModelScope'))
     dataset.encode()
     
@@ -114,7 +114,7 @@ twinkle.initialize(mode='ray', nproc_per_node=8, groups=device_groups)
 def train():
     # Dataset
     dataset = Dataset(DatasetMeta('ms://modelscope/gsm8k', split='train'))
-    dataset.set_template('Template', model_id=MODEL_ID)
+    dataset.set_template('Qwen3_5Template', model_id=MODEL_ID)
     dataset.encode(add_generation_prompt=True)
     dataloader = DataLoader(dataset=dataset, batch_size=16)
     

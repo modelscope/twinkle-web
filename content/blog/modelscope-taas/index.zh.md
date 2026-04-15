@@ -1,8 +1,6 @@
 ---
 title: "魔搭社区免费 LLM 训练：Twinkle 训练即服务"
 date: 2026-03-15
-authors:
-  - admin
 tags:
   - ModelScope
   - TaaS
@@ -54,7 +52,7 @@ api_key = os.environ.get('MODELSCOPE_TOKEN')
 dataset = Dataset(
     dataset_meta=DatasetMeta('ms://swift/self-cognition', data_slice=range(500))
 )
-dataset.set_template('Template', model_id=base_model, max_length=256)
+dataset.set_template('Qwen3_5Template', model_id=base_model, max_length=256)
 dataset.map(
     SelfCognitionProcessor('Twinkle Model', 'ModelScope Team'), 
     load_from_cache_file=False

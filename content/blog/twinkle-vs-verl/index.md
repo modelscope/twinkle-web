@@ -1,8 +1,6 @@
 ---
 title: "Twinkle vs veRL: Two Approaches to LLM Post-Training"
 date: 2026-03-18
-authors:
-  - admin
 tags:
   - Reinforcement Learning
   - GRPO

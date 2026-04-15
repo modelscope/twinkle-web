@@ -106,7 +106,7 @@ sections:
         
         # 准备数据 — 支持魔搭和 Hugging Face
         dataset = Dataset(dataset_meta=DatasetMeta('ms://swift/self-cognition'))
-        dataset.set_template('Template', model_id='ms://Qwen/Qwen3.5-4B')
+        dataset.set_template('Qwen3_5Template', model_id='ms://Qwen/Qwen3.5-4B')
         dataset.encode()
         
         # 创建带 LoRA 的模型
@@ -139,7 +139,7 @@ sections:
         
         # 本地准备数据
         dataset = Dataset(dataset_meta=DatasetMeta('ms://swift/self-cognition'))
-        dataset.set_template('Template', model_id=f'ms://{base_model}', max_length=256)
+        dataset.set_template('Qwen3_5Template', model_id=f'ms://{base_model}', max_length=256)
         dataset.map(SelfCognitionProcessor('My Model', 'My Team'))
         dataset.encode(batched=True)
         

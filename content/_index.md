@@ -106,7 +106,7 @@ sections:
         
         # Prepare data — works with ModelScope and Hugging Face
         dataset = Dataset(dataset_meta=DatasetMeta('ms://swift/self-cognition'))
-        dataset.set_template('Template', model_id='ms://Qwen/Qwen3.5-4B')
+        dataset.set_template('Qwen3_5Template', model_id='ms://Qwen/Qwen3.5-4B')
         dataset.encode()
         
         # Create model with LoRA
@@ -139,7 +139,7 @@ sections:
         
         # Prepare data locally
         dataset = Dataset(dataset_meta=DatasetMeta('ms://swift/self-cognition'))
-        dataset.set_template('Template', model_id=f'ms://{base_model}', max_length=256)
+        dataset.set_template('Qwen3_5Template', model_id=f'ms://{base_model}', max_length=256)
         dataset.map(SelfCognitionProcessor('My Model', 'My Team'))
         dataset.encode(batched=True)
         

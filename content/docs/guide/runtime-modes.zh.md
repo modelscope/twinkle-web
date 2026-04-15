@@ -16,7 +16,7 @@ from twinkle.dataset import Dataset, DatasetMeta
 
 def train():
     dataset = Dataset(dataset_meta=DatasetMeta('ms://swift/self-cognition'))
-    dataset.set_template('Template', model_id='ms://Qwen/Qwen3.5-4B')
+    dataset.set_template('Qwen3_5Template', model_id='ms://Qwen/Qwen3.5-4B')
     dataset.encode()
     
     dataloader = DataLoader(dataset=dataset, batch_size=8)

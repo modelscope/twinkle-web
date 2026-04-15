@@ -102,7 +102,7 @@ dataset = Dataset(dataset_meta=DatasetMeta(
     'ms://swift/self-cognition',
     data_slice=range(1000)
 ))
-dataset.set_template('Template', model_id='ms://Qwen/Qwen3.5-4B')
+dataset.set_template('Qwen3_5Template', model_id='ms://Qwen/Qwen3.5-4B')
 dataset.map(SelfCognitionProcessor('Model', 'Author'))
 dataset.encode()
 

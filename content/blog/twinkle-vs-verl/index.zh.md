@@ -1,8 +1,6 @@
 ---
 title: "Twinkle vs veRL：LLM 后训练的两种方案"
 date: 2026-03-18
-authors:
-  - admin
 tags:
   - 强化学习
   - GRPO

@@ -136,7 +136,7 @@ text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hove
 </span></span><span class=line><span class=cl>        <span class=n>data_slice</span><span class=o>=</span><span class=nb>range</span><span class=p>(</span><span class=mi>1000</span><span class=p>)</span>
 </span></span><span class=line><span class=cl>    <span class=p>))</span>
 </span></span><span class=line><span class=cl>    <span class=c1># 设置模板用于编码</span>
-</span></span><span class=line><span class=cl>    <span class=n>dataset</span><span class=o>.</span><span class=n>set_template</span><span class=p>(</span><span class=s1>&#39;Template&#39;</span><span class=p>,</span> <span class=n>model_id</span><span class=o>=</span><span class=s1>&#39;ms://Qwen/Qwen3.5-4B&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>dataset</span><span class=o>.</span><span class=n>set_template</span><span class=p>(</span><span class=s1>&#39;Qwen3_5Template&#39;</span><span class=p>,</span> <span class=n>model_id</span><span class=o>=</span><span class=s1>&#39;ms://Qwen/Qwen3.5-4B&#39;</span><span class=p>)</span>
 </span></span><span class=line><span class=cl>    <span class=c1># 预处理为标准格式</span>
 </span></span><span class=line><span class=cl>    <span class=n>dataset</span><span class=o>.</span><span class=n>map</span><span class=p>(</span><span class=n>SelfCognitionProcessor</span><span class=p>(</span><span class=s1>&#39;Twinkle LLM&#39;</span><span class=p>,</span> <span class=s1>&#39;ModelScope&#39;</span><span class=p>))</span>
 </span></span><span class=line><span class=cl>    <span class=c1># 编码数据集</span>
@@ -194,7 +194,7 @@ text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hove
 </span></span><span class=line><span class=cl>    <span class=n>model_name</span><span class=o>=</span><span class=s1>&#39;Twinkle Model&#39;</span><span class=p>,</span> 
 </span></span><span class=line><span class=cl>    <span class=n>model_author</span><span class=o>=</span><span class=s1>&#39;ModelScope Community&#39;</span>
 </span></span><span class=line><span class=cl><span class=p>))</span>
-</span></span><span class=line><span class=cl><span class=n>dataset</span><span class=o>.</span><span class=n>set_template</span><span class=p>(</span><span class=s1>&#39;Template&#39;</span><span class=p>,</span> <span class=n>model_id</span><span class=o>=</span><span class=s1>&#39;ms://Qwen/Qwen3.5-4B&#39;</span><span class=p>,</span> <span class=n>max_length</span><span class=o>=</span><span class=mi>512</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>dataset</span><span class=o>.</span><span class=n>set_template</span><span class=p>(</span><span class=s1>&#39;Qwen3_5Template&#39;</span><span class=p>,</span> <span class=n>model_id</span><span class=o>=</span><span class=s1>&#39;ms://Qwen/Qwen3.5-4B&#39;</span><span class=p>,</span> <span class=n>max_length</span><span class=o>=</span><span class=mi>512</span><span class=p>)</span>
 </span></span><span class=line><span class=cl><span class=n>dataset</span><span class=o>.</span><span class=n>encode</span><span class=p>()</span>
 </span></span><span class=line><span class=cl><span class=n>dataset</span><span class=o>.</span><span class=n>pack_dataset</span><span class=p>()</span>
 </span></span><span class=line><span class=cl>

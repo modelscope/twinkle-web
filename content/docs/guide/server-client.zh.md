@@ -131,7 +131,7 @@ training_client = service_client.create_lora_training_client(
 
 # 本地准备数据
 dataset = Dataset(dataset_meta=DatasetMeta('ms://swift/self-cognition'))
-dataset.set_template('Template', model_id='ms://Qwen/Qwen3.5-4B')
+dataset.set_template('Qwen3_5Template', model_id='ms://Qwen/Qwen3.5-4B')
 dataset.map(SelfCognitionProcessor('My Model', 'My Team'))
 dataset.encode()
 dataloader = DataLoader(dataset=dataset, batch_size=8)

@@ -98,7 +98,7 @@ def train():
         data_slice=range(1000)
     ))
     # 设置模板用于编码
-    dataset.set_template('Template', model_id='ms://Qwen/Qwen3.5-4B')
+    dataset.set_template('Qwen3_5Template', model_id='ms://Qwen/Qwen3.5-4B')
     # 预处理为标准格式
     dataset.map(SelfCognitionProcessor('Twinkle LLM', 'ModelScope'))
     # 编码数据集
@@ -175,7 +175,7 @@ dataset.map(SelfCognitionProcessor(
     model_name='Twinkle Model', 
     model_author='ModelScope Community'
 ))
-dataset.set_template('Template', model_id='ms://Qwen/Qwen3.5-4B', max_length=512)
+dataset.set_template('Qwen3_5Template', model_id='ms://Qwen/Qwen3.5-4B', max_length=512)
 dataset.encode()
 dataset.pack_dataset()
 

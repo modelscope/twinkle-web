@@ -31,7 +31,7 @@ dataset = Dataset(dataset_meta=DatasetMeta(
     'ms://swift/self-cognition',
     data_slice=range(500)
 ))
-dataset.set_template('Template', model_id=f'ms://{base_model}', max_length=256)
+dataset.set_template('Qwen3_5Template', model_id=f'ms://{base_model}', max_length=256)
 dataset.map(SelfCognitionProcessor('Twinkle Model', 'ModelScope'))
 dataset.encode(batched=True)
 

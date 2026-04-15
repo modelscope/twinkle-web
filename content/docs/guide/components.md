@@ -22,7 +22,7 @@ dataset = Dataset(dataset_meta=DatasetMeta(
 dataset = Dataset(dataset_meta=DatasetMeta('hf://dataset-name'))
 
 # Set template for encoding
-dataset.set_template('Template', model_id='ms://Qwen/Qwen3.5-4B')
+dataset.set_template('Qwen3_5Template', model_id='ms://Qwen/Qwen3.5-4B')
 
 # Apply preprocessing
 dataset.map(SelfCognitionProcessor('Model Name', 'Author'))
@@ -164,8 +164,8 @@ Tokenization templates for different model architectures:
 ```python
 from twinkle.template import Template
 
-dataset.set_template('Template', model_id='ms://Qwen/Qwen3.5-4B', max_length=2048)
-sampler.set_template(Template, model_id='ms://Qwen/Qwen3.5-4B')
+dataset.set_template('Qwen3_5Template', model_id='ms://Qwen/Qwen3.5-4B', max_length=2048)
+sampler.set_template(Qwen3_5Template, model_id='ms://Qwen/Qwen3.5-4B')
 ```
 
 ## Preprocessor
