@@ -107,43 +107,43 @@ ray:
 
 ```python
 import os
-from twinkle_client import init_twinkle_client
-
-# 初始化客户端
-init_twinkle_client()
-
-from twinkle_client import ServiceClient
+from peft import LoraConfig
+from twinkle import init_twinkle_client
 from twinkle.dataloader import DataLoader
 from twinkle.dataset import Dataset, DatasetMeta
-from twinkle.preprocessor import SelfCognitionProcessor
+from twinkle_client.model import MultiLoraTransformersModel
 
-# 连接服务端
-service_client = ServiceClient(
+base_model = 'Qwen/Qwen3.5-4B'
+
+# 初始化客户端 — 连接服务端
+client = init_twinkle_client(
     base_url='http://localhost:8000',
     api_key=os.environ.get('API_KEY')
 )
 
-# 创建训练客户端
-training_client = service_client.create_lora_training_client(
-    base_model='Qwen/Qwen3.5-4B',
-    rank=16
-)
-
 # 本地准备数据
-dataset = Dataset(dataset_meta=DatasetMeta('ms://swift/self-cognition'))
-dataset.set_template('Qwen3_5Template', model_id='ms://Qwen/Qwen3.5-4B')
-dataset.map(SelfCognitionProcessor('My Model', 'My Team'))
-dataset.encode()
-dataloader = DataLoader(dataset=dataset, batch_size=8)
+dataset = Dataset(dataset_meta=DatasetMeta('ms://swift/self-cognition', data_slice=range(500)))
+dataset.set_template('Qwen3_5Template', model_id=f'ms://{base_model}', max_length=512)
+dataset.map('SelfCognitionProcessor', init_args={'model_name': 'My Model', 'model_author': 'My Team'})
+dataset.encode(batched=True)
+dataloader = DataLoader(dataset=dataset, batch_size=4)
+
+# 配置模型
+model = MultiLoraTransformersModel(model_id=f'ms://{base_model}')
+model.add_adapter_to_model('default', LoraConfig(target_modules='all-linear'))
+model.set_template('Qwen3_5Template')
+model.set_processor('InputProcessor', padding_side='right')
+model.set_loss('CrossEntropyLoss')
+model.set_optimizer('Adam', lr=1e-4)
 
 # 训练循环
-for epoch in range(2):
-    for batch in dataloader:
-        training_client.forward_backward(batch, "cross_entropy")
-        training_client.optim_step(learning_rate=1e-4)
+for epoch in range(3):
+    for step, batch in enumerate(dataloader):
+        model.forward_backward(inputs=batch)
+        model.clip_grad_and_step()
 
-# 保存检查点
-training_client.save_state("my-lora-checkpoint")
+    # 每个 epoch 保存检查点
+    model.save(name=f'twinkle-epoch-{epoch}', save_optimizer=True)
 ```
 
 ### Tinker Client
@@ -175,20 +175,33 @@ training_client = service_client.create_lora_training_client(
 
 ## 推理 / 采样
 
-训练完成后，使用你的 LoRA 进行推理：
+训练完成后，通过 Tinker 兼容客户端使用你的 LoRA 进行推理：
 
 ```python
+import os
+from tinker import types
 from twinkle.data_format import Message, Trajectory
 from twinkle.template import Template
+from twinkle import init_tinker_client
 
-# 使用训练好的 LoRA 创建采样客户端
+init_tinker_client()
+from tinker import ServiceClient
+
+base_model = 'Qwen/Qwen3.5-4B'
+
+service_client = ServiceClient(
+    base_url='http://localhost:8000',
+    api_key=os.environ.get('API_KEY')
+)
+
+# 加载训练好的 LoRA 检查点
 sampling_client = service_client.create_sampling_client(
-    model_path='twinkle://my-lora-checkpoint',
-    base_model='Qwen/Qwen3.5-4B'
+    model_path='twinkle://xxx-Qwen_Qwen3.5-4B-xxx/weights/twinkle-lora-1',
+    base_model=base_model
 )
 
 # 准备提示词
-template = Template(model_id='ms://Qwen/Qwen3.5-4B')
+template = Template(model_id=f'ms://{base_model}')
 trajectory = Trajectory(
     messages=[
         Message(role='system', content='You are a helpful assistant'),
@@ -202,11 +215,14 @@ prompt = types.ModelInput.from_ints(input_feature['input_ids'].tolist())
 # 采样
 params = types.SamplingParams(
     max_tokens=128,
-    temperature=0.7
+    temperature=0.7,
+    stop=['\n']
 )
 
-result = sampling_client.sample(prompt=prompt, sampling_params=params)
-print(template.decode(result.sequences[0].tokens))
+future = sampling_client.sample(prompt=prompt, sampling_params=params, num_samples=1)
+result = future.result()
+for seq in result.sequences:
+    print(template.decode(seq.tokens))
 ```
 
 ## Cookbook 示例
@@ -218,25 +234,33 @@ cookbook/client/
 ├── server/                         # 服务端配置
 │   ├── transformer/
 │   │   ├── server.py
-│   │   └── server_config.yaml
+│   │   ├── server_config.yaml
+│   │   └── run.sh
 │   └── megatron/
 │       ├── server.py
 │       └── server_config.yaml
 ├── twinkle/                        # Twinkle Client 示例
 │   ├── self_host/
-│   │   ├── grpo.py                 # GRPO 训练
-│   │   ├── sample.py               # 推理
-│   │   └── self_cognition.py       # SFT 训练
+│   │   ├── self_congnition.py      # SFT 训练
+│   │   ├── short_math_grpo.py      # GRPO 训练
+│   │   ├── dpo.py                  # DPO 训练
+│   │   ├── multi_modal.py          # 多模态训练
+│   │   └── sample.py               # 推理
 │   └── modelscope/
-│       └── self_cognition.py
+│       ├── self_congnition.py      # ModelScope TaaS SFT
+│       └── multi_modal.py          # ModelScope TaaS 多模态
 └── tinker/                         # Tinker Client 示例
     ├── self_host/
-    │   ├── lora.py
-    │   ├── sample.py
-    │   └── short_math_grpo.py
+    │   ├── self_cognition.py       # SFT 训练
+    │   ├── lora.py                 # LoRA 训练
+    │   ├── short_math_grpo.py      # GRPO 训练
+    │   ├── dpo.py                  # DPO 训练
+    │   ├── multi_modal.py          # 多模态训练
+    │   └── sample.py               # 推理
     └── modelscope/
-        ├── sample.py
-        └── self_cognition.py
+        ├── self_cognition.py       # ModelScope TaaS SFT
+        ├── short_math_grpo.py      # ModelScope TaaS GRPO
+        └── sample.py               # ModelScope TaaS 推理
 ```
 
 ## 运行

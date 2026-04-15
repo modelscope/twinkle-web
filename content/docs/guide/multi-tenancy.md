@@ -52,7 +52,7 @@ twinkle.initialize(mode='http', groups=device_groups)
 ### Tenant A: SFT Training
 
 ```python
-from twinkle_client import init_twinkle_client
+from twinkle import init_twinkle_client
 from twinkle_client.model import MultiLoraTransformersModel
 from peft import LoraConfig
 
@@ -60,23 +60,29 @@ client = init_twinkle_client(base_url='http://server:8000')
 
 model = MultiLoraTransformersModel(model_id='ms://Qwen/Qwen3.5-4B')
 model.add_adapter_to_model('tenant_a', LoraConfig(r=8, lora_alpha=32))
+model.set_template('Qwen3_5Template')
+model.set_processor('InputProcessor', padding_side='right')
 model.set_loss('CrossEntropyLoss')
-model.set_optimizer('AdamW', lr=1e-4)
+model.set_optimizer('Adam', lr=1e-4)
 
 for batch in dataloader:
     model.forward_backward(inputs=batch)
-    model.step()
+    model.clip_grad_and_step()
 ```
 
 ### Tenant B: RL Training
 
 ```python
+from twinkle_client.sampler import vLLMSampler
+
 model = MultiLoraTransformersModel(model_id='ms://Qwen/Qwen3.5-4B')
 model.add_adapter_to_model('tenant_b', LoraConfig(r=32, lora_alpha=64))
 model.set_loss('GRPOLoss', epsilon=0.2)
-model.set_optimizer('AdamW', lr=1e-5)
+model.set_optimizer('Adam', lr=1e-5)
+model.set_template('Qwen3_5Template', model_id='ms://Qwen/Qwen3.5-4B')
 
 sampler = vLLMSampler(model_id='ms://Qwen/Qwen3.5-4B')
+sampler.set_template('Qwen3_5Template', model_id='ms://Qwen/Qwen3.5-4B')
 
 for batch in dataloader:
     # Sample completions
@@ -88,7 +94,7 @@ for batch in dataloader:
     
     # Train
     model.forward_backward(inputs=responses, advantages=advantages)
-    model.step()
+    model.clip_grad_and_step()
 ```
 
 ### Tenant C: Inference Only

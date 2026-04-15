@@ -38,13 +38,13 @@ categories:
 import os
 from tqdm import tqdm
 from tinker import types
-from twinkle_client import init_tinker_client
+from twinkle import init_tinker_client
 from twinkle.dataloader import DataLoader
 from twinkle.dataset import Dataset, DatasetMeta
 from twinkle.preprocessor import SelfCognitionProcessor
 from twinkle.server.common import input_feature_to_datum
 
-base_model = 'ms://Qwen/Qwen3.6-35B-A3B'
+base_model = 'Qwen/Qwen3.6-35B-A3B'
 base_url = 'http://www.modelscope.cn/twinkle'
 api_key = os.environ.get('MODELSCOPE_TOKEN')
 
@@ -52,7 +52,7 @@ api_key = os.environ.get('MODELSCOPE_TOKEN')
 dataset = Dataset(
     dataset_meta=DatasetMeta('ms://swift/self-cognition', data_slice=range(500))
 )
-dataset.set_template('Qwen3_5Template', model_id=base_model, max_length=256)
+dataset.set_template('Qwen3_5Template', model_id=f'ms://{base_model}', max_length=256)
 dataset.map(
     SelfCognitionProcessor('Twinkle Model', 'ModelScope Team'), 
     load_from_cache_file=False
@@ -66,7 +66,7 @@ from tinker import ServiceClient
 
 service_client = ServiceClient(base_url=base_url, api_key=api_key)
 training_client = service_client.create_lora_training_client(
-    base_model=base_model[len('ms://'):], 
+    base_model=base_model, 
     rank=16
 )
 
