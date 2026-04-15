@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>TaaS | Twinkle</title><link>http://localhost:1313/twinkle-web/zh/tags/taas/</link><atom:link href="http://localhost:1313/twinkle-web/zh/tags/taas/index.xml" rel="self" type="application/rss+xml"/><description>TaaS</description><generator>HugoBlox Kit (https://hugoblox.com)</generator><language>zh</language><lastBuildDate>Sun, 15 Mar 2026 00:00:00 +0000</lastBuildDate><image><url>http://localhost:1313/twinkle-web/media/logo_hu_c250c3e2884fbba6.png</url><title>TaaS</title><link>http://localhost:1313/twinkle-web/zh/tags/taas/</link></image><item><title>魔搭社区免费 LLM 训练：Twinkle 训练即服务</title><link>http://localhost:1313/twinkle-web/zh/blog/modelscope-taas/</link><pubDate>Sun, 15 Mar 2026 00:00:00 +0000</pubDate><guid>http://localhost:1313/twinkle-web/zh/blog/modelscope-taas/</guid><description>&lt;p&gt;我们很高兴地宣布，&lt;strong&gt;Twinkle 训练即服务（TaaS）&lt;/strong&gt; 现已在魔搭社区上线！开发者可以免费体验 Twinkle 的训练 API——无需 GPU 集群。&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>TaaS | Twinkle</title><link>http://localhost:1313/twinkle-web/zh/tags/taas/</link><atom:link href="http://localhost:1313/twinkle-web/zh/tags/taas/index.xml" rel="self" type="application/rss+xml"/><description>TaaS</description><generator>HugoBlox Kit (https://hugoblox.com)</generator><language>zh-Hans</language><lastBuildDate>Sun, 15 Mar 2026 00:00:00 +0000</lastBuildDate><image><url>http://localhost:1313/twinkle-web/media/logo_hu_c250c3e2884fbba6.png</url><title>TaaS</title><link>http://localhost:1313/twinkle-web/zh/tags/taas/</link></image><item><title>魔搭社区免费 LLM 训练：Twinkle 训练即服务</title><link>http://localhost:1313/twinkle-web/zh/blog/modelscope-taas/</link><pubDate>Sun, 15 Mar 2026 00:00:00 +0000</pubDate><guid>http://localhost:1313/twinkle-web/zh/blog/modelscope-taas/</guid><description>&lt;p&gt;我们很高兴地宣布，&lt;strong&gt;Twinkle 训练即服务（TaaS）&lt;/strong&gt; 现已在魔搭社区上线！开发者可以免费体验 Twinkle 的训练 API——无需 GPU 集群。&lt;/p&gt;
 &lt;h2 id="什么是-taas"&gt;什么是 TaaS？&lt;/h2&gt;
 &lt;p&gt;训练即服务（Training-as-a-Service）让你通过简单的 API 微调大语言模型，无需管理基础设施。模型运行在魔搭的后台服务器上；你只需发送数据，即可获得训练好的适配器。&lt;/p&gt;
 &lt;p&gt;当前可用模型：&lt;strong&gt;
@@ -24,7 +24,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;twinkle.preprocessor&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;SelfCognitionProcessor&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;twinkle.server.common&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;input_feature_to_datum&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;base_model&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;ms://Qwen/Qwen3-30B-A3B-Instruct-2507&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;base_model&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;ms://Qwen/Qwen3.6-35B-A3B&amp;#39;&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;base_url&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;http://www.modelscope.cn/twinkle&amp;#39;&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;api_key&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;os&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;environ&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;MODELSCOPE_TOKEN&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
@@ -76,7 +76,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;init_tinker_client&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;tinker&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;ServiceClient&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;base_model&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Qwen/Qwen3-30B-A3B-Instruct-2507&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;base_model&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Qwen/Qwen3.6-35B-A3B&amp;#39;&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;base_url&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;http://www.modelscope.cn/twinkle&amp;#39;&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;service_client&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ServiceClient&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
@@ -86,7 +86,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;# 加载训练好的 LoRA&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;sampling_client&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;service_client&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;create_sampling_client&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;model_path&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;twinkle://xxx-Qwen_Qwen3-30B-A3B-Instruct-2507-xxx/weights/twinkle-lora-1&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;model_path&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;twinkle://xxx-Qwen_Qwen3.6-35B-A3B-xxx/weights/twinkle-lora-1&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;base_model&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;base_model&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
@@ -169,7 +169,7 @@
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;多模态&lt;/td&gt;
-&lt;td&gt;仅支持文本（Qwen3-30B）&lt;/td&gt;
+&lt;td&gt;仅支持文本（Qwen3.6-35B）&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;

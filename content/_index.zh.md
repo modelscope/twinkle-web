@@ -24,10 +24,10 @@ sections:
         text: 查看源码
         url: https://github.com/modelscope/twinkle
       announcement:
-        text: "✨ GKD 训练 & Qwen3.5 MoE 支持"
+        text: "🚀 v0.2.0 — DPO、GKD 与 On-policy 蒸馏、Qwen3.5 多模态训练"
         link:
           text: "查看更新 →"
-          url: "https://github.com/modelscope/twinkle/releases"
+          url: "https://github.com/modelscope/twinkle/releases/tag/v0.2.0"
     design:
       spacing:
         padding: ["5rem", 0, "3rem", 0]
@@ -122,6 +122,46 @@ sections:
         model.save('my-finetuned-model')
         ```
         
+        ### 或通过魔搭 TaaS 训练 — 无需本地 GPU
+        
+        ```python
+        import os
+        from twinkle_client import init_tinker_client
+        from twinkle.dataloader import DataLoader
+        from twinkle.dataset import Dataset, DatasetMeta
+        from twinkle.preprocessor import SelfCognitionProcessor
+        from twinkle.server.common import input_feature_to_datum
+        
+        # 使用魔搭社区官方 TaaS 端点 — 免费，无需本地 GPU
+        base_url = 'https://www.modelscope.cn/twinkle'
+        api_key = os.environ.get('MODELSCOPE_TOKEN')
+        base_model = 'Qwen/Qwen3.6-35B-A3B'
+        
+        # 本地准备数据
+        dataset = Dataset(dataset_meta=DatasetMeta('ms://swift/self-cognition'))
+        dataset.set_template('Template', model_id=f'ms://{base_model}', max_length=256)
+        dataset.map(SelfCognitionProcessor('My Model', 'My Team'))
+        dataset.encode(batched=True)
+        
+        # 连接魔搭 TaaS 服务
+        init_tinker_client()
+        from tinker import ServiceClient, types
+        
+        service_client = ServiceClient(base_url=base_url, api_key=api_key)
+        training_client = service_client.create_lora_training_client(
+            base_model=base_model, rank=16
+        )
+        
+        # 训练 — 相同的循环，运行在魔搭集群上
+        for batch in DataLoader(dataset=dataset, batch_size=8):
+            training_client.forward_backward(
+                [input_feature_to_datum(f) for f in batch], 'cross_entropy'
+            )
+            training_client.optim_step(types.AdamParams(learning_rate=1e-4))
+        
+        training_client.save_state('my-lora').result()
+        ```
+        
         </div>
     design:
       columns: '1'
@@ -192,7 +232,7 @@ sections:
         - name: 广泛的模型支持
           icon: cpu-chip
           description: |
-            Qwen 3.5/3/2.5、DeepSeek R1/V2、GLM-4、InternLM2 等。同时支持 Hugging Face 和魔搭模型库。
+            Qwen 3.6/3.5/3/2.5、DeepSeek R1/V2、GLM-4、InternLM2 等。同时支持 Hugging Face 和魔搭模型库。
     design:
       spacing:
         padding: ["3rem", 0, "3rem", 0]
@@ -242,6 +282,7 @@ sections:
         ## 支持的模型
         
         <div style="margin: 1.5rem 0;">
+          <span class="model-tag" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);">Qwen 3.6</span>
           <span class="model-tag" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);">Qwen 3.5</span>
           <span class="model-tag" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">Qwen MoE</span>
           <span class="model-tag" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">DeepSeek R1</span>

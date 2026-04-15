@@ -87,7 +87,7 @@ For ultra-large models with tensor/pipeline parallelism:
 
 ```yaml
 model:
-  model_id: Qwen/Qwen3.5-72B
+  model_id: Qwen/Qwen3.5-9B
   use_megatron: true
   torch_dtype: bfloat16
   tensor_parallel_size: 4

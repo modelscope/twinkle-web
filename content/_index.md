@@ -24,10 +24,10 @@ sections:
         text: View Source
         url: https://github.com/modelscope/twinkle
       announcement:
-        text: "✨ GKD Training & Qwen3.5 MoE Support"
+        text: "🚀 v0.2.0 — DPO, GKD & On-policy Distillation, Qwen3.5 Multimodal Training"
         link:
           text: "See what's new →"
-          url: "https://github.com/modelscope/twinkle/releases"
+          url: "https://github.com/modelscope/twinkle/releases/tag/v0.2.0"
     design:
       spacing:
         padding: ["5rem", 0, "3rem", 0]
@@ -122,6 +122,46 @@ sections:
         model.save('my-finetuned-model')
         ```
         
+        ### Or train via ModelScope TaaS — no GPU required
+        
+        ```python
+        import os
+        from twinkle_client import init_tinker_client
+        from twinkle.dataloader import DataLoader
+        from twinkle.dataset import Dataset, DatasetMeta
+        from twinkle.preprocessor import SelfCognitionProcessor
+        from twinkle.server.common import input_feature_to_datum
+        
+        # Use ModelScope's official TaaS endpoint — free, no local GPU needed
+        base_url = 'https://www.modelscope.cn/twinkle'
+        api_key = os.environ.get('MODELSCOPE_TOKEN')
+        base_model = 'Qwen/Qwen3.6-35B-A3B'
+        
+        # Prepare data locally
+        dataset = Dataset(dataset_meta=DatasetMeta('ms://swift/self-cognition'))
+        dataset.set_template('Template', model_id=f'ms://{base_model}', max_length=256)
+        dataset.map(SelfCognitionProcessor('My Model', 'My Team'))
+        dataset.encode(batched=True)
+        
+        # Connect to ModelScope TaaS
+        init_tinker_client()
+        from tinker import ServiceClient, types
+        
+        service_client = ServiceClient(base_url=base_url, api_key=api_key)
+        training_client = service_client.create_lora_training_client(
+            base_model=base_model, rank=16
+        )
+        
+        # Train — same loop, running on ModelScope's cluster
+        for batch in DataLoader(dataset=dataset, batch_size=8):
+            training_client.forward_backward(
+                [input_feature_to_datum(f) for f in batch], 'cross_entropy'
+            )
+            training_client.optim_step(types.AdamParams(learning_rate=1e-4))
+        
+        training_client.save_state('my-lora').result()
+        ```
+        
         </div>
     design:
       columns: '1'
@@ -192,7 +232,7 @@ sections:
         - name: Broad Model Support
           icon: cpu-chip
           description: |
-            Qwen 3.5/3/2.5, DeepSeek R1/V2, GLM-4, InternLM2, and more. Both Hugging Face and ModelScope model hubs.
+            Qwen 3.6/3.5/3/2.5, DeepSeek R1/V2, GLM-4, InternLM2, and more. Both Hugging Face and ModelScope model hubs.
     design:
       spacing:
         padding: ["3rem", 0, "3rem", 0]
@@ -242,6 +282,7 @@ sections:
         ## Supported Models
         
         <div style="margin: 1.5rem 0;">
+          <span class="model-tag" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);">Qwen 3.6</span>
           <span class="model-tag" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);">Qwen 3.5</span>
           <span class="model-tag" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">Qwen MoE</span>
           <span class="model-tag" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">DeepSeek R1</span>

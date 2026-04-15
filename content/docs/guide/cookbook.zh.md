@@ -3,11 +3,11 @@ title: Cookbook
 weight: 5
 ---
 
-Practical examples for common training scenarios.
+常见训练场景的实战示例。
 
-## FSDP Training
+## FSDP 训练
 
-Fully Sharded Data Parallel training with Transformers:
+使用 Transformers 的全分片数据并行训练：
 
 ```python
 from peft import LoraConfig
@@ -18,7 +18,7 @@ from twinkle.dataset import Dataset, DatasetMeta
 from twinkle.model import TransformersModel
 from twinkle.preprocessor import SelfCognitionProcessor
 
-# FSDP with 4 shards, 2-way data parallel
+# FSDP 4 路分片，2 路数据并行
 device_mesh = DeviceMesh.from_sizes(fsdp_size=4, dp_size=2)
 twinkle.initialize(mode='local', global_device_mesh=device_mesh)
 
@@ -50,29 +50,29 @@ if __name__ == '__main__':
     train()
 ```
 
-Run with:
+运行命令：
 ```bash
 torchrun --nproc_per_node=8 train.py
 ```
 
-## MoE Training
+## MoE 训练
 
-Training Mixture of Experts models:
+训练 Mixture of Experts 模型：
 
 ```python
 from twinkle import DeviceMesh
 from twinkle.model import TransformersModel
 
-# Expert parallelism + FSDP
+# 专家并行 + FSDP
 device_mesh = DeviceMesh.from_sizes(ep_size=2, fsdp_size=4)
 twinkle.initialize(mode='local', global_device_mesh=device_mesh)
 
 model = TransformersModel(model_id='ms://Qwen/Qwen3.6-35B-A3B')
 ```
 
-## Sequence Parallelism
+## 序列并行
 
-For long context training:
+用于长上下文训练：
 
 ```python
 device_mesh = DeviceMesh.from_sizes(sp_size=4, dp_size=2)
@@ -84,9 +84,9 @@ model = TransformersModel(
 )
 ```
 
-## GRPO Training
+## GRPO 训练
 
-Group Relative Policy Optimization:
+Group Relative Policy Optimization：
 
 ```python
 import twinkle
@@ -112,13 +112,13 @@ sampler_mesh = DeviceMesh.from_sizes(world_size=4, dp_size=4)
 twinkle.initialize(mode='ray', nproc_per_node=8, groups=device_groups)
 
 def train():
-    # Dataset
+    # 数据集
     dataset = Dataset(DatasetMeta('ms://modelscope/gsm8k', split='train'))
     dataset.set_template('Template', model_id=MODEL_ID)
     dataset.encode(add_generation_prompt=True)
     dataloader = DataLoader(dataset=dataset, batch_size=16)
     
-    # Model
+    # 模型
     model = TransformersModel(
         model_id=MODEL_ID,
         remote_group='model',
@@ -127,14 +127,14 @@ def train():
     model.set_loss('GRPOLoss', epsilon=0.2)
     model.set_optimizer('AdamW', lr=1e-5)
     
-    # Sampler
+    # 采样器
     sampler = vLLMSampler(
         model_id=MODEL_ID,
         device_mesh=sampler_mesh,
         remote_group='sampler'
     )
     
-    # Reward and Advantage
+    # 奖励与优势
     accuracy_reward = GSM8KAccuracyReward()
     format_reward = GSM8KFormatReward()
     advantage_fn = GRPOAdvantage()
@@ -142,26 +142,26 @@ def train():
     sampling_params = SamplingParams(max_tokens=4096, num_samples=1)
     
     for batch in dataloader:
-        # Sample completions
+        # 采样生成
         responses = sampler.sample(batch * NUM_GENERATIONS, sampling_params)
         
-        # Compute rewards
+        # 计算奖励
         accuracy = accuracy_reward(responses)
         format_r = format_reward(responses)
         total_rewards = [a + f for a, f in zip(accuracy, format_r)]
         
-        # Compute advantages
+        # 计算优势
         advantages = advantage_fn(
             total_rewards,
             num_generations=NUM_GENERATIONS,
             scale='group'
         ).tolist()
         
-        # Extract data
+        # 提取数据
         inputs = [seq.new_input_feature for r in responses for seq in r.sequences]
         old_logps = [[lp[0][1] for lp in seq.logprobs] for r in responses for seq in r.sequences]
         
-        # Train
+        # 训练
         model.forward_backward(
             inputs=inputs,
             old_logps=old_logps,
@@ -175,14 +175,14 @@ if __name__ == '__main__':
     train()
 ```
 
-## GKD Training
+## GKD 训练
 
-Generalized Knowledge Distillation:
+广义知识蒸馏：
 
 ```python
 from twinkle.model import TransformersModel
 
-# Teacher and student models
+# Teacher 和 student 模型
 teacher = TransformersModel(model_id='ms://Qwen/Qwen3.5-9B', requires_grad=False)
 student = TransformersModel(model_id='ms://Qwen/Qwen3.5-4B')
 
@@ -193,15 +193,15 @@ for batch in dataloader:
     student.clip_grad_and_step()
 ```
 
-## Megatron Training
+## Megatron 训练
 
-Using Megatron backend for 3D parallelism:
+使用 Megatron 后端进行 3D 并行：
 
 ```python
 from twinkle import DeviceMesh
 from twinkle.model.megatron import MegatronModel
 
-# Tensor + Pipeline + Data parallelism
+# 张量并行 + 流水线并行 + 数据并行
 device_mesh = DeviceMesh.from_sizes(tp_size=2, pp_size=2, dp_size=2)
 twinkle.initialize(mode='ray', global_device_mesh=device_mesh)
 
@@ -219,9 +219,9 @@ for batch in dataloader:
     model.clip_grad_and_step()
 ```
 
-## Custom Reward Function
+## 自定义奖励函数
 
-Implementing domain-specific rewards:
+实现领域特定的奖励：
 
 ```python
 from twinkle.reward.base import Reward
@@ -231,7 +231,7 @@ class MyCustomReward(Reward):
     def __call__(self, trajectories: List[dict], ground_truths: List[dict]) -> List[float]:
         rewards = []
         for traj in trajectories:
-            # Extract completion
+            # 提取补全内容
             messages = traj.get('messages', [])
             completion = ''
             for msg in reversed(messages):
@@ -239,7 +239,7 @@ class MyCustomReward(Reward):
                     completion = msg.get('content', '')
                     break
             
-            # Custom scoring logic
+            # 自定义评分逻辑
             score = self.compute_score(completion)
             rewards.append(score)
         
@@ -250,9 +250,9 @@ class MyCustomReward(Reward):
         return 1.0 if 'correct' in completion else 0.0
 ```
 
-## Using HuggingFace Models
+## 使用 HuggingFace 模型
 
-Switch from ModelScope to HuggingFace:
+从 ModelScope 切换到 HuggingFace：
 
 ```python
 # ModelScope
@@ -262,9 +262,9 @@ model = TransformersModel(model_id='ms://Qwen/Qwen3.5-4B')
 model = TransformersModel(model_id='hf://Qwen/Qwen3.5-4B')
 ```
 
-## NPU Support
+## NPU 支持
 
-Training on Ascend NPUs:
+在昇腾 NPU 上训练：
 
 ```python
 device_group = [
@@ -274,4 +274,4 @@ device_group = [
 twinkle.initialize(mode='local', groups=device_group)
 ```
 
-See the [Twinkle cookbook](https://github.com/modelscope/twinkle/tree/main/cookbook) for more examples.
+更多示例请参阅 [Twinkle cookbook](https://github.com/modelscope/twinkle/tree/main/cookbook)。

@@ -1,20 +1,20 @@
 ---
-title: Training as a Service
+title: 训练即服务
 weight: 4
 ---
 
-Twinkle provides built-in capabilities for deploying enterprise-grade Training as a Service (TaaS).
+Twinkle 内置企业级训练即服务（TaaS）部署能力。
 
-## ModelScope TaaS
+## 魔搭 TaaS
 
-Twinkle powers the training service on ModelScope. You can experience Twinkle's training API for free:
+Twinkle 驱动魔搭社区的训练服务。你可以免费体验 Twinkle 的训练 API：
 
-1. Join the [Twinkle-Explorers](https://modelscope.cn/organization/twinkle-explorers) organization
-2. Use the API endpoint: `base_url=https://www.modelscope.cn/twinkle`
+1. 加入 [Twinkle-Explorers](https://modelscope.cn/organization/twinkle-explorers) 组织
+2. 使用 API 端点：`base_url=https://www.modelscope.cn/twinkle`
 
-## Serverless Training
+## 无服务器训练
 
-Access the hosted training service via Tinker-compatible APIs:
+通过 Tinker 兼容 API 访问托管训练服务：
 
 ```python
 from tinker import ServiceClient, types
@@ -23,10 +23,10 @@ from twinkle.dataset import Dataset, DatasetMeta
 from twinkle.preprocessor import SelfCognitionProcessor
 from twinkle.server.common import input_feature_to_datum
 
-# The base model (currently Qwen3.6-35B-A3B)
+# 基座模型（当前为 Qwen3.6-35B-A3B）
 base_model = 'Qwen/Qwen3.6-35B-A3B'
 
-# Prepare dataset
+# 准备数据集
 dataset = Dataset(dataset_meta=DatasetMeta(
     'ms://swift/self-cognition',
     data_slice=range(500)
@@ -37,30 +37,30 @@ dataset.encode(batched=True)
 
 dataloader = DataLoader(dataset=dataset, batch_size=8)
 
-# Connect to ModelScope TaaS
+# 连接魔搭 TaaS
 service_client = ServiceClient(
     base_url='https://www.modelscope.cn/twinkle',
     api_key='your-api-key'
 )
 
-# Create training client
+# 创建训练客户端
 training_client = service_client.create_lora_training_client(
     base_model=base_model,
     rank=16
 )
 
-# Training loop
+# 训练循环
 for epoch in range(3):
     for step, batch in enumerate(dataloader):
         input_datum = [input_feature_to_datum(f) for f in batch]
         
-        # Forward-backward pass
+        # 前向-反向传播
         fwdbwd_future = training_client.forward_backward(
             input_datum,
             'cross_entropy'
         )
         
-        # Optimizer step
+        # 优化器步进
         optim_future = training_client.optim_step(
             types.AdamParams(learning_rate=1e-4)
         )
@@ -69,26 +69,26 @@ for epoch in range(3):
         optim_result = optim_future.result()
         print(f'Step {step}: {optim_result}')
     
-    # Save checkpoint after each epoch
+    # 每个 epoch 后保存检查点
     save_result = training_client.save_state(f'epoch-{epoch}').result()
     print(f'Saved to {save_result.path}')
 ```
 
-## Self-Hosted Deployment
+## 自建部署
 
-Deploy your own TaaS instance:
+部署你自己的 TaaS 实例：
 
-### 1. Start Ray Cluster
+### 1. 启动 Ray 集群
 
 ```bash
-# Head node
+# Head 节点
 CUDA_VISIBLE_DEVICES=0,1,2,3 ray start --head --port=6379 --num-gpus=4
 
-# Worker nodes (optional)
+# Worker 节点（可选）
 CUDA_VISIBLE_DEVICES=4,5,6,7 ray start --address=head:6379 --num-gpus=4
 ```
 
-### 2. Start Training Server
+### 2. 启动训练服务端
 
 ```python
 # server.py
@@ -102,14 +102,14 @@ device_groups = [
 
 twinkle.initialize(mode='http', groups=device_groups)
 
-# Server starts on http://0.0.0.0:8000
+# 服务启动于 http://0.0.0.0:8000
 ```
 
 ```bash
 python server.py
 ```
 
-### 3. Connect Clients
+### 3. 连接客户端
 
 ```python
 from twinkle_client import init_twinkle_client
@@ -120,54 +120,54 @@ client = init_twinkle_client(
 )
 ```
 
-## Supported Models
+## 支持的模型
 
-| Model | Size | HuggingFace ID | Megatron |
-|:------|:-----|:---------------|:---------|
-| Qwen3.6 | 4B-35B-A3B | Qwen/Qwen3.6-* | Yes |
-| Qwen3.5 | 2B-27B | Qwen/Qwen3.5-* | Yes |
-| Qwen3 | 0.6B-32B | Qwen/Qwen3-* | Yes |
-| Qwen2.5 | 0.5B-72B | Qwen/Qwen2.5-* | Yes |
-| DeepSeek-R1 | Various | deepseek-ai/DeepSeek-R1 | Yes |
+| 模型 | 规模 | HuggingFace ID | Megatron |
+|:-----|:-----|:---------------|:---------|
+| Qwen3.6 | 4B-35B-A3B | Qwen/Qwen3.6-* | 支持 |
+| Qwen3.5 | 2B-27B | Qwen/Qwen3.5-* | 支持 |
+| Qwen3 | 0.6B-32B | Qwen/Qwen3-* | 支持 |
+| Qwen2.5 | 0.5B-72B | Qwen/Qwen2.5-* | 支持 |
+| DeepSeek-R1 | 多种 | deepseek-ai/DeepSeek-R1 | 支持 |
 
-## Supported Hardware
+## 支持的硬件
 
-| Platform | Status |
-|:---------|:-------|
-| NVIDIA GPUs | Full support |
-| Ascend NPU | Partial support |
-| PPU | Supported |
-| CPU | Dataset/DataLoader only |
+| 平台 | 状态 |
+|:-----|:-----|
+| NVIDIA GPU | 完整支持 |
+| 昇腾 NPU | 部分支持 |
+| PPU | 支持 |
+| CPU | 仅 Dataset/DataLoader |
 
-## API Endpoints
+## API 端点
 
-### Training
+### 训练
 
-- `POST /forward_backward` - Compute gradients
-- `POST /optim_step` - Update weights
-- `POST /save_state` - Save checkpoint
+- `POST /forward_backward` - 计算梯度
+- `POST /optim_step` - 更新权重
+- `POST /save_state` - 保存检查点
 
-### Sampling
+### 采样
 
-- `POST /sample` - Generate completions
+- `POST /sample` - 生成补全
 
-### Management
+### 管理
 
-- `GET /health` - Service health check
-- `GET /metrics` - Training metrics
+- `GET /health` - 服务健康检查
+- `GET /metrics` - 训练指标
 
-## Monitoring
+## 监控
 
-Track training progress and resource usage:
+跟踪训练进度和资源使用：
 
 ```python
-# Get training metrics
+# 获取训练指标
 metrics = model.calculate_metric(is_training=True)
 print(f'Loss: {metrics["loss"]}, LR: {metrics["lr"]}')
 ```
 
-## Security
+## 安全
 
-- **API Key Authentication**: All requests require valid API key
-- **Tenant Isolation**: Each tenant's data and weights are isolated
-- **Checkpoint Access Control**: Checkpoints stored per-tenant
+- **API Key 认证**：所有请求需要有效的 API Key
+- **租户隔离**：每个租户的数据和权重完全隔离
+- **检查点访问控制**：检查点按租户独立存储

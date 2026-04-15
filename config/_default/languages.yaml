@@ -5,18 +5,13 @@
 # Default language
 en:
   languageCode: en-us
-  # Uncomment for multi-lingual sites, and move English content into `en` sub-folder.
-  #contentDir: content/en
 
-# Uncomment the lines below to configure your website in a second language.
-#zh:
-#  languageCode: zh-Hans
-#  contentDir: content/zh
-#  title: Chinese website title...
-#  params:
-#    description: Site description in Chinese...
-#  menu:
-#    main:
-#      - name: 传
-#        url: '#about'
-#        weight: 1
+# Chinese language
+zh:
+  languageCode: zh-Hans
+  title: Twinkle
+  params:
+    hugoblox:
+      identity:
+        tagline: "让你的模型闪闪发光"
+        description: "Twinkle 是一个轻量级的客户端-服务端训练框架，具有模块化、高内聚的接口设计，专为大语言模型训练打造。由 ModelScope 构建。"

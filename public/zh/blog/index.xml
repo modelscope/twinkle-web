@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>博客 | Twinkle</title><link>http://localhost:1313/twinkle-web/zh/blog/</link><atom:link href="http://localhost:1313/twinkle-web/zh/blog/index.xml" rel="self" type="application/rss+xml"/><description>博客</description><generator>HugoBlox Kit (https://hugoblox.com)</generator><language>zh</language><lastBuildDate>Fri, 20 Mar 2026 00:00:00 +0000</lastBuildDate><image><url>http://localhost:1313/twinkle-web/media/logo_hu_c250c3e2884fbba6.png</url><title>博客</title><link>http://localhost:1313/twinkle-web/zh/blog/</link></image><item><title>为什么开源很重要：Twinkle vs 闭源训练平台</title><link>http://localhost:1313/twinkle-web/zh/blog/open-source-enterprise/</link><pubDate>Fri, 20 Mar 2026 00:00:00 +0000</pubDate><guid>http://localhost:1313/twinkle-web/zh/blog/open-source-enterprise/</guid><description>&lt;p&gt;LLM 训练基础设施领域发展迅速，各种平台涌现帮助团队微调和训练大语言模型。然而，一个关键的分歧存在：&lt;strong&gt;开源 vs 闭源&lt;/strong&gt;。本文将解释 Twinkle 为何选择开源路线，以及这对企业采用意味着什么。&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>博客 | Twinkle</title><link>http://localhost:1313/twinkle-web/zh/blog/</link><atom:link href="http://localhost:1313/twinkle-web/zh/blog/index.xml" rel="self" type="application/rss+xml"/><description>博客</description><generator>HugoBlox Kit (https://hugoblox.com)</generator><language>zh-Hans</language><lastBuildDate>Fri, 20 Mar 2026 00:00:00 +0000</lastBuildDate><image><url>http://localhost:1313/twinkle-web/media/logo_hu_c250c3e2884fbba6.png</url><title>博客</title><link>http://localhost:1313/twinkle-web/zh/blog/</link></image><item><title>为什么开源很重要：Twinkle vs 闭源训练平台</title><link>http://localhost:1313/twinkle-web/zh/blog/open-source-enterprise/</link><pubDate>Fri, 20 Mar 2026 00:00:00 +0000</pubDate><guid>http://localhost:1313/twinkle-web/zh/blog/open-source-enterprise/</guid><description>&lt;p&gt;LLM 训练基础设施领域发展迅速，各种平台涌现帮助团队微调和训练大语言模型。然而，一个关键的分歧存在：&lt;strong&gt;开源 vs 闭源&lt;/strong&gt;。本文将解释 Twinkle 为何选择开源路线，以及这对企业采用意味着什么。&lt;/p&gt;
 &lt;h2 id="闭源训练平台的问题"&gt;闭源训练平台的问题&lt;/h2&gt;
 &lt;p&gt;像 Tinker 这样的闭源训练平台在 LLM 训练基础设施方面开创了重要概念。但对于企业用户来说，它们存在显著的局限性：&lt;/p&gt;
 &lt;h3 id="1-供应商锁定"&gt;1. 供应商锁定&lt;/h3&gt;
@@ -415,7 +415,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;twinkle.preprocessor&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;SelfCognitionProcessor&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;twinkle.server.common&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;input_feature_to_datum&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;base_model&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;ms://Qwen/Qwen3-30B-A3B-Instruct-2507&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;base_model&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;ms://Qwen/Qwen3.6-35B-A3B&amp;#39;&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;base_url&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;http://www.modelscope.cn/twinkle&amp;#39;&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;api_key&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;os&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;environ&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;MODELSCOPE_TOKEN&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
@@ -467,7 +467,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;init_tinker_client&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;tinker&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;ServiceClient&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;base_model&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Qwen/Qwen3-30B-A3B-Instruct-2507&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;base_model&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Qwen/Qwen3.6-35B-A3B&amp;#39;&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;base_url&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;http://www.modelscope.cn/twinkle&amp;#39;&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;service_client&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ServiceClient&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
@@ -477,7 +477,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;# 加载训练好的 LoRA&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;sampling_client&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;service_client&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;create_sampling_client&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;model_path&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;twinkle://xxx-Qwen_Qwen3-30B-A3B-Instruct-2507-xxx/weights/twinkle-lora-1&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;model_path&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;twinkle://xxx-Qwen_Qwen3.6-35B-A3B-xxx/weights/twinkle-lora-1&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;base_model&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;base_model&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
@@ -560,7 +560,7 @@
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;多模态&lt;/td&gt;
-&lt;td&gt;仅支持文本（Qwen3-30B）&lt;/td&gt;
+&lt;td&gt;仅支持文本（Qwen3.6-35B）&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
