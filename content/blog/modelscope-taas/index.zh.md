@@ -18,7 +18,7 @@ categories:
 
 训练即服务（Training-as-a-Service）让你通过简单的 API 微调大语言模型，无需管理基础设施。模型运行在魔搭的后台服务器上；你只需发送数据，即可获得训练好的适配器。
 
-当前可用模型：**[Qwen/Qwen3.6-35B-A3B](https://www.modelscope.cn/models/Qwen/Qwen3.6-35B-A3B)**
+当前可用模型：**[Qwen/Qwen3.6-27B](https://www.modelscope.cn/models/Qwen/Qwen3.6-27B)**
 
 ## 快速开始
 
@@ -44,7 +44,7 @@ from twinkle.dataset import Dataset, DatasetMeta
 from twinkle.preprocessor import SelfCognitionProcessor
 from twinkle.server.common import input_feature_to_datum
 
-base_model = 'Qwen/Qwen3.6-35B-A3B'
+base_model = 'Qwen/Qwen3.6-27B'
 base_url = 'http://www.modelscope.cn/twinkle'
 api_key = os.environ.get('MODELSCOPE_TOKEN')
 
@@ -101,7 +101,7 @@ from twinkle import init_tinker_client
 init_tinker_client()
 from tinker import ServiceClient
 
-base_model = 'Qwen/Qwen3.6-35B-A3B'
+base_model = 'Qwen/Qwen3.6-27B'
 base_url = 'http://www.modelscope.cn/twinkle'
 
 service_client = ServiceClient(
@@ -111,7 +111,7 @@ service_client = ServiceClient(
 
 # 加载训练好的 LoRA
 sampling_client = service_client.create_sampling_client(
-    model_path='twinkle://xxx-Qwen_Qwen3.6-35B-A3B-xxx/weights/twinkle-lora-1',
+    model_path='twinkle://xxx-Qwen_Qwen3.6-27B-xxx/weights/twinkle-lora-1',
     base_model=base_model
 )
 
@@ -160,7 +160,7 @@ for i, seq in enumerate(result.sequences):
 |------|------|
 | 最大 Rank | 32 |
 | modules_to_save | 不支持 |
-| 多模态 | 仅支持文本（Qwen3.6-35B） |
+| 多模态 | 仅支持文本（Qwen3.6-27B） |
 
 ## 可自定义的内容
 

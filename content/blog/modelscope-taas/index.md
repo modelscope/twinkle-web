@@ -18,7 +18,7 @@ We're excited to announce that **Twinkle Training-as-a-Service (TaaS)** is now a
 
 Training-as-a-Service lets you fine-tune large language models through a simple API, without managing infrastructure. The model runs on ModelScope's backend servers; you just send data and receive trained adapters.
 
-Currently available model: **[Qwen/Qwen3.6-35B-A3B](https://www.modelscope.cn/models/Qwen/Qwen3.6-35B-A3B)**
+Currently available model: **[Qwen/Qwen3.6-27B](https://www.modelscope.cn/models/Qwen/Qwen3.6-27B)**
 
 ## Getting Started
 
@@ -44,7 +44,7 @@ from twinkle.dataset import Dataset, DatasetMeta
 from twinkle.preprocessor import SelfCognitionProcessor
 from twinkle.server.common import input_feature_to_datum
 
-base_model = 'Qwen/Qwen3.6-35B-A3B'
+base_model = 'Qwen/Qwen3.6-27B'
 base_url = 'http://www.modelscope.cn/twinkle'
 api_key = os.environ.get('MODELSCOPE_TOKEN')
 
@@ -101,7 +101,7 @@ from twinkle import init_tinker_client
 init_tinker_client()
 from tinker import ServiceClient
 
-base_model = 'Qwen/Qwen3.6-35B-A3B'
+base_model = 'Qwen/Qwen3.6-27B'
 base_url = 'http://www.modelscope.cn/twinkle'
 
 service_client = ServiceClient(
@@ -111,7 +111,7 @@ service_client = ServiceClient(
 
 # Load your trained LoRA
 sampling_client = service_client.create_sampling_client(
-    model_path='twinkle://xxx-Qwen_Qwen3.6-35B-A3B-xxx/weights/twinkle-lora-1',
+    model_path='twinkle://xxx-Qwen_Qwen3.6-27B-xxx/weights/twinkle-lora-1',
     base_model=base_model
 )
 
@@ -160,7 +160,7 @@ The free tier has some limitations:
 |-----------|-------|
 | Max Rank | 32 |
 | modules_to_save | Not supported |
-| Multimodal | Text-only (Qwen3.6-35B) |
+| Multimodal | Text-only (Qwen3.6-27B) |
 
 ## What You Can Customize
 

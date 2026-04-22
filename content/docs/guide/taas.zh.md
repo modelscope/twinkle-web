@@ -23,8 +23,8 @@ from twinkle.dataset import Dataset, DatasetMeta
 from twinkle.preprocessor import SelfCognitionProcessor
 from twinkle.server.common import input_feature_to_datum
 
-# 基座模型（当前为 Qwen3.6-35B-A3B）
-base_model = 'Qwen/Qwen3.6-35B-A3B'
+# 基座模型（当前为 Qwen3.6-27B）
+base_model = 'Qwen/Qwen3.6-27B'
 
 # 准备数据集
 dataset = Dataset(dataset_meta=DatasetMeta(

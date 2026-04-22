@@ -135,7 +135,7 @@ sections:
         # 使用魔搭社区官方 TaaS 端点 — 免费，无需本地 GPU
         base_url = 'https://www.modelscope.cn/twinkle'
         api_key = os.environ.get('MODELSCOPE_TOKEN')
-        base_model = 'Qwen/Qwen3.6-35B-A3B'
+        base_model = 'Qwen/Qwen3.6-27B'
         
         # 本地准备数据
         dataset = Dataset(dataset_meta=DatasetMeta('ms://swift/self-cognition'))

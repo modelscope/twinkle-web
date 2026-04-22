@@ -135,7 +135,7 @@ sections:
         # Use ModelScope's official TaaS endpoint — free, no local GPU needed
         base_url = 'https://www.modelscope.cn/twinkle'
         api_key = os.environ.get('MODELSCOPE_TOKEN')
-        base_model = 'Qwen/Qwen3.6-35B-A3B'
+        base_model = 'Qwen/Qwen3.6-27B'
         
         # Prepare data locally
         dataset = Dataset(dataset_meta=DatasetMeta('ms://swift/self-cognition'))
