@@ -10,6 +10,9 @@
     echo "=== Installing dependencies ==="
     pnpm install --verbose --no-frozen-lockfile
     
+    echo "=== Syncing docs from twinkle repo ==="
+    python3 scripts/sync-docs.py
+    
     echo "=== Running Hugo build ==="
     hugo --gc --minify -b $URL --logLevel debug --printI18nWarnings --printPathWarnings
     
@@ -41,6 +44,7 @@
     echo "=== Deploy Preview Build ==="
     echo "Deploy URL: $DEPLOY_PRIME_URL"
     pnpm install --verbose --no-frozen-lockfile
+    python3 scripts/sync-docs.py
     hugo --gc --minify --buildFuture -b $DEPLOY_PRIME_URL --logLevel debug --printI18nWarnings --printPathWarnings
     pnpm run pagefind
   """
@@ -51,6 +55,7 @@
     echo "=== Branch Deploy Build ==="
     echo "Deploy URL: $DEPLOY_PRIME_URL"
     pnpm install --verbose --no-frozen-lockfile
+    python3 scripts/sync-docs.py
     hugo --gc --minify -b $DEPLOY_PRIME_URL --logLevel debug --printI18nWarnings --printPathWarnings
     pnpm run pagefind
   """
