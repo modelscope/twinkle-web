@@ -10,7 +10,7 @@ main:
   - name: 博客
     url: blog/
     weight: 30
-  - name: 案例展示
+  - name: Cookbook
     url: showcase/
     weight: 40
   - name: 社区

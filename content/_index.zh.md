@@ -4,6 +4,195 @@ date: 2026-02-10
 type: landing
 
 design:
+  spacing: "2rem"
+
+sections:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # HERO
+  # ═══════════════════════════════════════════════════════════════════════════
+  - block: hero
+    content:
+      title: '<span class="hero-title-with-logo"><img src="slogan.png" alt="Twinkle" class="hero-logo" /></span>'
+      text: |
+        <p style="font-size: 1.5rem; font-weight: 500; margin-bottom: 0.5rem;">让你的模型闪闪发光的训练工作台 ✨</p>
+        <p style="font-size: 1.1rem; color: #64748b;">一套框架，任意规模。从笔记本到千卡集群。</p>
+      primary_action:
+        text: 快速开始
+        url: docs/getting-started/
+        icon: rocket-launch
+      secondary_action:
+        text: 查看源码
+        url: https://github.com/modelscope/twinkle
+      announcement:
+        text: "🚀 v0.4.0 — DeepSeek V4, Gemma 4, Qwen3.5 MoE GatedDeltaNet, EP LoRA & NPU 加速"
+        link:
+          text: "查看更新 →"
+          url: "https://github.com/modelscope/twinkle/releases/tag/v0.4.0"
+    design:
+      spacing:
+        padding: ["3rem", 0, "2rem", 0]
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # STATS
+  # ═══════════════════════════════════════════════════════════════════════════
+  - block: stats
+    content:
+      items:
+        - statistic: "全模态"
+          description: |
+            主流模型
+            LLM · VLM · MoE
+        - statistic: "3 运行模式"
+          description: |
+            本地 · Ray · Client
+        - statistic: "服务化"
+          description: |
+            并行 LoRA 训练
+        - statistic: "<5分钟"
+          description: |
+            上手时间
+            pip install 即用
+    design:
+      spacing:
+        padding: ["1rem", 0, "1rem", 0]
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # ARCHITECTURE + CODE (two-column)
+  # ═══════════════════════════════════════════════════════════════════════════
+  - block: markdown
+    content:
+      title: ""
+      text: |
+        <div style="max-width: 900px; margin: 0 auto;">
+        
+        <div style="text-align: center;">
+          <img src="/framework.jpg" alt="Twinkle 架构" style="width: 100%; border-radius: 8px;" />
+          <div style="display: flex; gap: 0.5rem; margin-top: 1rem; justify-content: center; flex-wrap: wrap;">
+            <span style="background: #6366f1; color: white; padding: 0.3rem 1rem; border-radius: 999px; font-size: 0.85rem;">🔌 三套 API</span>
+            <span style="background: #6366f1; color: white; padding: 0.3rem 1rem; border-radius: 999px; font-size: 0.85rem;">🧩 25+ 组件</span>
+            <span style="background: #6366f1; color: white; padding: 0.3rem 1rem; border-radius: 999px; font-size: 0.85rem;">🔀 Transformers / Megatron</span>
+          </div>
+        </div>
+        
+        ### 20 行开始训练
+        
+        ```bash
+        pip install 'twinkle-kit[ray]'
+        ```
+        
+        ```python
+        import twinkle
+        from peft import LoraConfig
+        from twinkle import DeviceGroup
+        from twinkle.dataloader import DataLoader
+        from twinkle.dataset import Dataset, DatasetMeta
+        from twinkle.model import TransformersModel
+        
+        twinkle.initialize(mode='ray', groups=[DeviceGroup(name='default', ranks=8)])
+        
+        dataset = Dataset(dataset_meta=DatasetMeta('ms://swift/self-cognition'))
+        dataset.set_template('Qwen3_5Template', model_id='ms://Qwen/Qwen3.5-4B')
+        dataset.encode()
+        
+        model = TransformersModel(model_id='ms://Qwen/Qwen3.5-4B', remote_group='default')
+        model.add_adapter_to_model('default', LoraConfig(r=8, lora_alpha=32))
+        model.set_optimizer(optimizer_cls='AdamW', lr=1e-4)
+        
+        for batch in DataLoader(dataset=dataset, batch_size=8):
+            model.forward_backward(inputs=batch)
+            model.clip_grad_and_step()
+        
+        model.save('my-finetuned-model')
+        ```
+        
+        </div>
+    design:
+      columns: '1'
+      spacing:
+        padding: ["2rem", 0, "2rem", 0]
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # FEATURES
+  # ═══════════════════════════════════════════════════════════════════════════
+  - block: features
+    id: features
+    content:
+      title: 为什么选 Twinkle？
+      text: ""
+      items:
+        - name: 无需重写即可扩展
+          icon: arrow-trending-up
+          description: |
+            同一份接口跑在笔记本和千卡集群。torchrun → Ray → HTTP 部署无需改训练逻辑。
+        - name: 原生多租户
+          icon: users
+          description: |
+            一个基座模型同时训练 N 个 LoRA。隔离优化器、数据、损失函数，共享算力。
+        - name: 你掌控训练循环
+          icon: code-bracket
+          description: |
+            无黑箱魔法。控制每一步 forward、backward、optimizer step，自由组合算法。
+        - name: Training as a Service
+          icon: cloud-arrow-up
+          description: |
+            生产级 TaaS 部署，自动集群管理、动态扩缩容、企业级多租户隔离。
+        - name: OpenAI API + Auto Research
+          icon: command-line
+          description: |
+            兼容 /chat/completions 端点。LLM Agent 用自然语言自主启动、监控、调试训练全流程。
+        - name: OpenEnv + Agentic RL
+          icon: globe-alt
+          description: |
+            任何 WebSocket 环境接入多轮 Rollout。构建编程/Web Agent，统一接口。
+    design:
+      spacing:
+        padding: ["2rem", 0, "2rem", 0]
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # MODELS + CTA
+  # ═══════════════════════════════════════════════════════════════════════════
+  - block: markdown
+    content:
+      title: ""
+      text: |
+        <div style="text-align: center; padding: 1.5rem 0;">
+        
+        ## 支持的模型
+        
+        <div style="margin: 1rem 0;">
+          <span class="model-tag" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);">Qwen 3.6</span>
+          <span class="model-tag" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);">Qwen 3.5</span>
+          <span class="model-tag" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">Qwen 2.5</span>
+          <span class="model-tag" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">DeepSeek R1 / V4</span>
+          <span class="model-tag" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">LLaMA 3</span>
+          <span class="model-tag" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">GLM-4</span>
+          <span class="model-tag" style="background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);">InternLM 2.5</span>
+          <span class="model-tag" style="background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);">Mistral</span>
+          <span class="model-tag" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);">Yi</span>
+          <span class="model-tag" style="background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);">Qwen VL</span>
+          <span class="model-tag" style="background: linear-gradient(135deg, #64748b 0%, #475569 100%);">InternVL</span>
+          <span class="model-tag" style="background: linear-gradient(135deg, #78716c 0%, #57534e 100%);">Qwen Embedding</span>
+        </div>
+        
+        <p style="opacity: 0.6; font-size: 0.85rem; margin-bottom: 2rem;">
+          NVIDIA · Ascend NPU · SFT / PT / GRPO / GKD / Embedding
+        </p>
+        
+        <a href="docs/getting-started/" style="display: inline-block; background: #6366f1; color: white; padding: 0.75rem 2rem; border-radius: 8px; font-weight: 600; text-decoration: none; font-size: 1.1rem;">快速开始 →</a>
+        
+        </div>
+    design:
+      columns: '1'
+      css_class: "bg-gray-50"
+      spacing:
+        padding: ["2rem", 0, "2rem", 0]
+---
+---
+title: 'Twinkle'
+date: 2026-02-10
+type: landing
+
+design:
   spacing: "3rem"
 
 sections:
@@ -24,10 +213,10 @@ sections:
         text: 查看源码
         url: https://github.com/modelscope/twinkle
       announcement:
-        text: "🚀 v0.2.0 — DPO、GKD 与 On-policy 蒸馏、Qwen3.5 多模态训练"
+        text: "🚀 v0.4.0 — DeepSeek V4、Gemma 4、Qwen3.5 MoE GatedDeltaNet、EP LoRA 与 NPU 加速"
         link:
           text: "查看更新 →"
-          url: "https://github.com/modelscope/twinkle/releases/tag/v0.2.0"
+          url: "https://github.com/modelscope/twinkle/releases/tag/v0.4.0"
     design:
       spacing:
         padding: ["5rem", 0, "3rem", 0]
@@ -38,22 +227,32 @@ sections:
   - block: stats
     content:
       items:
-        - statistic: "全"
+        - statistic: "全模态"
           description: |
             主流模型
             LLM · VLM · MoE
-        - statistic: "3"
+        - statistic: "3 运行模式"
           description: |
-            运行模式
-            本地 · Ray · HTTP
-        - statistic: "∞"
+            本地 · Ray · Client
+        - statistic: "服务化"
           description: |
-            多租户
             并行 LoRA 训练
         - statistic: "<5分钟"
           description: |
             上手时间
             pip install 即用
+        - statistic: "OpenAI"
+          description: |
+            兼容 API
+            /chat/completions
+        - statistic: "Auto Research"
+          description: |
+            LLM Agent 驱动
+            自然语言 · 全流程自动化
+        - statistic: "OpenEnv"
+          description: |
+            RL 环境
+            多轮 Rollout
     design:
       spacing:
         padding: ["2rem", 0, "2rem", 0]
@@ -74,8 +273,6 @@ sections:
         使用简洁的 Python API 编写训练逻辑，然后部署到任何地方 —— 本地 `torchrun`、
         Ray 集群，或无服务器 Training-as-a-Service。
         
-        由 **ModelScope** 的 [ms-swift](https://github.com/modelscope/ms-swift) 团队构建。
-        
         </div>
     design:
       columns: '1'
@@ -92,6 +289,10 @@ sections:
         <div style="max-width: 800px; margin: 0 auto;">
         
         ## 20 行代码开始训练
+        
+        ```bash
+        pip install 'twinkle-kit[ray]'
+        ```
         
         ```python
         import twinkle
@@ -182,12 +383,12 @@ sections:
         
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; max-width: 900px; margin: 2rem auto;">
           <div style="text-align: center;">
-            <h4 style="color: #6366f1; margin-bottom: 0.5rem;">🔌 双 API</h4>
-            <p style="font-size: 0.9rem; opacity: 0.8;">原生 Twinkle API 功能完整，Tinker 兼容 API 便于迁移</p>
+            <h4 style="color: #6366f1; margin-bottom: 0.5rem;">🔌 三套 API</h4>
+            <p style="font-size: 0.9rem; opacity: 0.8;">OpenAI 兼容 /chat/completions、原生 Twinkle API、Tinker 兼容 API</p>
           </div>
           <div style="text-align: center;">
             <h4 style="color: #6366f1; margin-bottom: 0.5rem;">🧩 模块化</h4>
-            <p style="font-size: 0.9rem; opacity: 0.8;">15+ 组件：Dataset、Template、Model、Sampler、Loss、Reward、Metric...</p>
+            <p style="font-size: 0.9rem; opacity: 0.8;">25+ 组件：Dataset、Template、Model、Sampler、Loss、Reward、Metric...</p>
           </div>
           <div style="text-align: center;">
             <h4 style="color: #6366f1; margin-bottom: 0.5rem;">🔀 后端无关</h4>
@@ -212,7 +413,7 @@ sections:
         - name: 无需重写即可扩展
           icon: arrow-trending-up
           description: |
-            相同代码运行在笔记本和千卡集群。从 `torchrun` 切换到 Ray 或 HTTP 部署，无需修改训练逻辑。
+            同一份接口运行在笔记本和千卡集群。从 `torchrun` 切换到 Ray 或 HTTP 部署，无需修改训练逻辑。
         - name: 内置多租户
           icon: users
           description: |
@@ -220,7 +421,7 @@ sections:
         - name: 你掌控训练循环
           icon: code-bracket
           description: |
-            没有隐藏的魔法。查看和控制每一个 forward、backward 和优化器步骤。自由调试，完全定制。
+            没有隐藏的魔法。查看和控制每一个 forward、backward 和优化器步骤。自由组合算法，完全定制。
         - name: 训练即服务
           icon: cloud-arrow-up
           description: |
@@ -284,14 +485,22 @@ sections:
         <div style="margin: 1.5rem 0;">
           <span class="model-tag" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);">Qwen 3.6</span>
           <span class="model-tag" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);">Qwen 3.5</span>
-          <span class="model-tag" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">Qwen MoE</span>
-          <span class="model-tag" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">DeepSeek R1</span>
+          <span class="model-tag" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">Qwen 2.5</span>
+          <span class="model-tag" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">DeepSeek R1 / V4</span>
+          <span class="model-tag" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">LLaMA 3</span>
           <span class="model-tag" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">GLM-4</span>
-          <span class="model-tag" style="background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);">InternLM2</span>
+          <span class="model-tag" style="background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);">InternLM 2.5</span>
+          <span class="model-tag" style="background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);">Mistral</span>
+          <span class="model-tag" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);">Yi</span>
+        </div>
+        <div style="margin: 1rem 0;">
+          <span class="model-tag" style="background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);">Qwen VL</span>
+          <span class="model-tag" style="background: linear-gradient(135deg, #64748b 0%, #475569 100%);">InternVL</span>
+          <span class="model-tag" style="background: linear-gradient(135deg, #78716c 0%, #57534e 100%);">Qwen Embedding</span>
         </div>
         
         <p style="opacity: 0.7; font-size: 0.9rem;">
-          支持主流 LLM · NVIDIA · 昇腾 NPU · SFT / PT / GRPO / GKD
+          支持主流 LLM 与 VLM · NVIDIA · 昇腾 NPU · SFT / PT / GRPO / GKD / Embedding
         </p>
         
         </div>

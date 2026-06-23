@@ -42,6 +42,20 @@ Twinkle is part of the [ModelScope](https://github.com/modelscope) open-source e
 - [ms-swift](https://github.com/modelscope/ms-swift) — Efficient fine-tuning framework
 - [Transformers](https://github.com/huggingface/transformers) — Model framework
 
+## Contributors {#contributors}
+
+**Twinkle✨** is designed, developed, and maintained by an **Open Workshop** composed of members from various open-source technology teams. We welcome more developers passionate about large model training to join us in building and improving this framework.
+
+The core members of the workshop currently come from:
+
+- [ModelScope](https://modelscope.cn/home) Open Source Community Project Team
+- [China Merchants Bank](https://www.cmbchina.com/) Open Source Technology Team
+- Technical staff from various compute hardware teams
+
+We are grateful to the open-source community, particularly the projects that inspired us, including [Transformers](https://github.com/huggingface/transformers), [MS-SWIFT](https://github.com/modelscope/swift), [veRL](https://github.com/verl-project/verl), [Tinker](https://github.com/thinking-machines-lab/tinker), and many others.
+
+We welcome open contributions via [Issues](https://github.com/modelscope/twinkle/issues) and [Pull Requests](https://github.com/modelscope/twinkle/pulls).
+
 ## Further Resources
 
 - [Ray Documentation](https://docs.ray.io/) — The distributed computing framework

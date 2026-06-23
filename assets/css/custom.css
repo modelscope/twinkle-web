@@ -463,6 +463,40 @@ header,
   color: var(--twinkle-primary) !important;
 }
 
+/* Force horizontal navbar at md breakpoint (768px) instead of lg (1024px) */
+@media (min-width: 768px) {
+  /* Hide hamburger button */
+  label[for="nav-toggle"] {
+    display: none !important;
+  }
+  /* Show nav menu horizontally */
+  #nav-menu {
+    display: flex !important;
+    width: auto !important;
+    padding-bottom: 0 !important;
+    gap: 0.25rem;
+  }
+  .navbar-nav {
+    text-align: left;
+  }
+  .nav-link {
+    padding: 0.5rem 0.6rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Show docs sidebar at md breakpoint (768px) instead of lg (1024px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .hb-sidebar-container {
+    position: sticky !important;
+    top: 4rem !important;
+    transform: none !important;
+    width: 16rem !important;
+    flex-shrink: 0 !important;
+    align-self: flex-start !important;
+  }
+}
+
 /* ─────────────────────────────────────────────────────────────────────────────
    Footer - Light
    ───────────────────────────────────────────────────────────────────────────── */
@@ -551,3 +585,32 @@ footer {
   background: #0f172a !important;
   border-color: #334155;
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Cookbook (Showcase) - Two-Column Card Grid
+   ───────────────────────────────────────────────────────────────────────────── */
+.page-body .container.grid {
+  max-width: 72rem !important;
+  grid-template-columns: 1fr !important;
+}
+
+@media (min-width: 768px) {
+  .page-body .container.grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* Compact card image area */
+.page-body .container.grid .aspect-\[16\/9\] {
+  aspect-ratio: 16/10 !important;
+}
+
+/* Reduce card padding for compactness */
+.page-body .container.grid .p-8 {
+  padding: 1.25rem !important;
+}
+
+.page-body .container.grid .space-y-4 {
+  gap: 0.5rem !important;
+}
+

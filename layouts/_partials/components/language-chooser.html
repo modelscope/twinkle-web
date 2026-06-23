@@ -1,16 +1,14 @@
-{{/* Simple language switcher: direct link to the other language */}}
+{{/* Horizontal tab-style language switcher */}}
 {{ $page := .page }}
 {{- if $page.IsTranslated -}}
+<div style="display: inline-flex; align-items: center; background: #f1f5f9; border-radius: 6px; padding: 2px; gap: 2px; font-size: 0.8rem; font-weight: 500;">
+  <span style="padding: 0.25rem 0.6rem; border-radius: 4px; background: #6366f1; color: white;">
+    {{- if eq $page.Lang "en" }}EN{{ else }}中文{{ end -}}
+  </span>
   {{ range $page.Translations }}
-    <a
-      href="{{ .Permalink }}"
-      title="{{ index site.Data.languages .Lang }}"
-      style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.5rem; border-radius: 0.375rem; font-size: 0.8rem; font-weight: 500; text-decoration: none; color: inherit; transition: opacity 0.2s;"
-      onmouseover="this.style.opacity='0.7'"
-      onmouseout="this.style.opacity='1'"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-      {{- index site.Data.languages .Lang -}}
-    </a>
+  <a href="{{ .Permalink }}" style="padding: 0.25rem 0.6rem; border-radius: 4px; text-decoration: none; color: #475569; transition: background 0.15s;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='transparent'">
+    {{- if eq .Lang "en" }}EN{{ else }}中文{{ end -}}
+  </a>
   {{ end }}
+</div>
 {{- end -}}

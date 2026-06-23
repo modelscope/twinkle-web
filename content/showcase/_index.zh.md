@@ -1,6 +1,7 @@
 ---
-title: 案例展示
-description: "查看 Twinkle 实际效果 — Ray 分布式训练、多租户和训练即服务。"
+title: Cookbook
+linkTitle: Cookbook
+description: "开箱即用的训练示例 — 从 SFT 到 GRPO，从 Megatron 到多轮 RL。"
 type: landing
 
 sections:
@@ -22,6 +23,7 @@ sections:
         margin: [0, 0, 0, 0]
   - block: collection
     content:
+      count: 0
       filters:
         folders:
           - showcase

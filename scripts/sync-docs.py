@@ -95,6 +95,8 @@ EN_ZH_DIR_MAP = {
     "Training Middleware":       "训练中间件",
     "CLI":                      "CLI",
     "Notifier":                 "通知器",
+    "Agentic":                  "Agentic",
+    "TUI":                      "TUI",
 }
 
 # Chinese directory title -> English directory title (for display)

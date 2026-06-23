@@ -42,6 +42,20 @@ Twinkle 是 [ModelScope](https://github.com/modelscope) 开源生态系统的一
 - [ms-swift](https://github.com/modelscope/ms-swift) — 高效微调框架
 - [Transformers](https://github.com/huggingface/transformers) — 模型框架
 
+## 贡献者 {#contributors}
+
+**Twinkle✨** 由来自多个开源技术团队成员组成的**开放工坊（Open Workshop）**设计、开发和维护。我们欢迎更多热衷于大模型训练的开发者加入，共同构建和完善这个框架。
+
+工坊核心成员目前来自：
+
+- [魔搭社区（ModelScope）](https://modelscope.cn/home) 开源社区项目组
+- [招商银行](https://www.cmbchina.com/) 开源技术团队
+- 多家算力硬件厂商技术人员
+
+我们感谢开源社区，特别是启发我们的项目，包括 [Transformers](https://github.com/huggingface/transformers)、[MS-SWIFT](https://github.com/modelscope/swift)、[veRL](https://github.com/verl-project/verl)、[Tinker](https://github.com/thinking-machines-lab/tinker) 等。
+
+欢迎通过 [Issues](https://github.com/modelscope/twinkle/issues) 和 [Pull Requests](https://github.com/modelscope/twinkle/pulls) 参与开源贡献。
+
 ## 更多资源
 
 - [Ray 文档](https://docs.ray.io/) — 分布式计算框架

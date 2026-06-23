@@ -1,11 +1,11 @@
 ---
-title: User Guide
+title: Concepts & Architecture
 weight: 2
 sidebar:
   open: true
 ---
 
-Comprehensive guides for configuring, deploying, and extending Twinkle.
+Comprehensive guides for understanding Twinkle's architecture, runtime modes, and deployment.
 
 {{< cards >}}
   {{< card url="architecture" title="Architecture" icon="cpu-chip" >}}

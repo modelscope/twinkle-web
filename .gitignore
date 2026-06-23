@@ -45,6 +45,10 @@ node_modules/
 pagefind/
 static/pagefind/
 
+# Auto-generated docs (by scripts/sync-docs.py from docs/source_en & docs/source_zh)
+content/docs/components/
+content/docs/usage-guide/
+
 # ============================================================================
 # Operating System
 # ============================================================================

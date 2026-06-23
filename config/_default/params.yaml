@@ -95,9 +95,9 @@ hugoblox:
     language_switcher: true
     # Call-to-action button
     cta:
-      enable: true
-      text: "GitHub"
-      url: "https://github.com/modelscope/twinkle"
+      enable: false
+      text: ""
+      url: ""
 
   # ────────────────────────────────────────────────────────────────────────────
   # FOOTER

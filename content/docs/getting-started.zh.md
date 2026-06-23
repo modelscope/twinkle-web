@@ -187,6 +187,76 @@ for data in dataloader:
     break
 ```
 
+## 部署后：OpenAI 兼容 API
+
+使用 Twinkle Server 部署模型后，即可获得开箱即用的 **OpenAI 兼容 API**。任何 OpenAI SDK 或工具都可以直接调用你的模型进行推理：
+
+```bash
+# 启动 Server
+twinkle-server launch -c server_config.yaml
+```
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url='http://localhost:8000/api/v1',
+    api_key='your-token',
+)
+
+response = client.chat.completions.create(
+    model='Qwen/Qwen3.5-4B',
+    messages=[{'role': 'user', 'content': '你好！'}],
+    temperature=0.7,
+    stream=True,
+)
+for chunk in response:
+    print(chunk.choices[0].delta.content, end='')
+```
+
+支持的端点：
+
+| 端点 | 方法 | 说明 |
+|------|------|------|
+| `/chat/completions` | POST | 聊天补全（支持流式与非流式） |
+| `/models` | GET | 列出可用模型 |
+
+特性包括：完整流式响应支持（SSE）、粘性会话路由实现 adapter 隔离、自动聊天模板初始化、Adapter 到基座模型的自动解析。
+
+## Auto Research：用自然语言驱动训练
+
+Auto Research 是 Twinkle 内置的 LLM Agent 终端，通过自然语言对话自主完成训练全流程——从集群部署、脚本生成、启动训练到异常诊断和自动修复，无需手动编写任何 shell 命令：
+
+```bash
+# 安装客户端
+pip install twinkle-client
+
+# 使用本地 LLM 启动 Auto Research
+twinkle-tui --llm-base-url http://localhost:11434/v1 --llm-model qwen3.5
+
+# 或使用远程 API
+twinkle-tui --llm-base-url https://api.example.com/v1 --llm-api-key sk-xxx --llm-model gpt-4o
+```
+
+**你可以这样对话：**
+
+- *"用 Qwen3.5-4B 在 gsm8k 上启动一个 GRPO 训练"* — 自动生成脚本并启动训练
+- *"训练进展如何？"* — 实时指标和状态监控
+- *"显示 reward 指标，放大到 step 100-200"* — 交互式图表可视化
+- *"在 ModelScope 上搜索数学数据集"* — 模型和数据集发现
+
+**核心能力：**
+
+| 能力 | 说明 |
+|------|------|
+| 训练生命周期 | 启动、暂停、恢复、停止，自动保存 checkpoint |
+| Server 管理 | 自动 GPU 分区、Ray 集群搭建、健康检查 |
+| 自动修复 | 检测崩溃、诊断错误、改写脚本并重启（最多 3 次尝试） |
+| 实时监控 | ASCII 指标图表、日志流、每 30 秒健康检查 |
+| Skills 系统 | 可扩展的插件架构（内置 + 本地 + 社区） |
+
+Auto Research 将 ML 训练变成一场对话——描述你想训练什么，Agent 自动处理从服务器部署到排障的全部工作。
+
 ## 支持的硬件
 
 | 硬件 | 备注 |
