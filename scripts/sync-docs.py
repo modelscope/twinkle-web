@@ -36,7 +36,7 @@ def find_docs_root() -> Path:
         return candidate
 
     # Strategy 2: walk up from the *unresolved* script path
-    raw_script = Path(__file__).parent.parent  # twinkle-web/ (unresolved)
+    raw_script = Path(__file__).absolute().parent.parent  # twinkle-web/ (unresolved)
     for parent in [raw_script.parent, raw_script.parent.parent]:
         candidate = parent / "docs"
         if candidate.exists() and (candidate / "source_en").exists():
@@ -146,8 +146,12 @@ def extract_title_from_md(content: str) -> str:
 def strip_first_heading(content: str) -> str:
     """Remove the first H1 heading line (Hugo uses front-matter title)."""
     lines = content.splitlines(keepends=True)
+    in_code_block = False
     for i, line in enumerate(lines):
-        if re.match(r"^#\s+", line):
+        if line.strip().startswith("```"):
+            in_code_block = not in_code_block
+            continue
+        if not in_code_block and re.match(r"^#\s+", line):
             # Also strip the blank line right after if present
             end = i + 1
             if end < len(lines) and lines[end].strip() == "":

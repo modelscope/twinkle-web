@@ -6,19 +6,19 @@ main:
     url: /
     weight: 10
   - name: Quick Start
-    url: docs/getting-started/
+    url: /docs/getting-started/
     weight: 15
   - name: Documentation
-    url: docs/
+    url: /docs/
     weight: 20
   - name: Blog
-    url: blog/
+    url: /blog/
     weight: 30
   - name: Cookbook
-    url: showcase/
+    url: /showcase/
     weight: 40
   - name: Community
-    url: community/
+    url: /community/
     weight: 50
   - name: GitHub
     url: https://github.com/modelscope/twinkle
@@ -35,7 +35,7 @@ sidebar:
   - identifier: community
     name: "Community"
     # url matches main nav; avoids pageRef edge cases with multilingual + base path
-    url: community/
+    url: /community/
     weight: 2
   - identifier: github
     name: "GitHub ↗"

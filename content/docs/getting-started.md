@@ -196,7 +196,7 @@ After deploying your model with Twinkle Server, you get an **OpenAI-compatible A
 twinkle-server launch -c server_config.yaml
 ```
 
-> For details on writing `server_config.yaml`, see [Server & Client Guide](guide/server-client/).
+> For details on writing `server_config.yaml`, see [Server & Client Guide](../guide/server-client/).
 
 ```python
 from openai import OpenAI

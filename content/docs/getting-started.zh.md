@@ -196,7 +196,7 @@ for data in dataloader:
 twinkle-server launch -c server_config.yaml
 ```
 
-> `server_config.yaml` 的编写方式详见 [服务端与客户端指南](guide/server-client/)。
+> `server_config.yaml` 的编写方式详见 [服务端与客户端指南](../guide/server-client/)。
 
 ```python
 from openai import OpenAI
