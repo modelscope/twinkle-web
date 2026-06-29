@@ -206,19 +206,21 @@ def rewrite_links(content: str) -> str:
             return f"[{text}]({LINK_REWRITES[decoded]})"
         
         # Auto-slugify .md references: "Dir/File.md" -> "dir/file/"
+        # NOTE: All synced files are Hugo leaf pages, which get a virtual
+        # directory (e.g. page.md -> URL /page/). Sibling references need
+        # "../" to escape the virtual directory first.
         if target.endswith(".md") and not target.startswith(("http://", "https://")):
             parts = target.split("/")
             filename = parts[-1][:-3]  # strip .md
             slug = slugify(filename)
             if len(parts) == 1:
-                return f"[{text}]({slug}/)"
-            prefix_parts = [slugify(p) for p in parts[:-1] if p not in (".", "..")]
-            dir_prefix = "/".join(parts[:-1]).replace(
-                parts[-2] if len(parts) > 1 else "",
-                slugify(parts[-2]) if len(parts) > 1 and parts[-2] not in (".", "..") else parts[-2]
-            )
+                # Bare sibling: "File.md" -> "../file/"
+                return f"[{text}](../{slug}/)"
             # Reconstruct with relative prefix preserved
             prefix = "/".join(p if p in (".", "..") else slugify(p) for p in parts[:-1])
+            # "./File.md" -> prefix is ".", should become "../file/"
+            if prefix == ".":
+                return f"[{text}](../{slug}/)"
             return f"[{text}]({prefix}/{slug}/)"
         
         return full_match
