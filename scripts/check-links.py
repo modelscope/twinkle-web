@@ -46,8 +46,19 @@ def resolve_link(md_file: Path, link_target: str) -> tuple[bool, str]:
     if not target:
         return True, "anchor-only"
 
-    # Resolve relative to the markdown file's directory
-    base_dir = md_file.parent
+    # Hugo leaf pages (non _index.md / index.md) get their own virtual directory.
+    # e.g. content/docs/getting-started.md -> URL /docs/getting-started/
+    # Relative links resolve from that virtual directory, not the parent.
+    # But _index.md (branch bundle) and index.md (leaf bundle) use parent dir.
+    if md_file.name.startswith("_index") or md_file.stem == "index" or md_file.stem == "index.zh":
+        base_dir = md_file.parent
+    else:
+        # Strip language suffix (.zh.md -> stem is still file.zh, we need the base stem)
+        stem = md_file.stem
+        if stem.endswith(".zh"):
+            stem = stem[:-3]
+        base_dir = md_file.parent / stem
+
     resolved = (base_dir / target).resolve()
 
     # Check direct file existence
