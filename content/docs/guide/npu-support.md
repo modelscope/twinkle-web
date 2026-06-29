@@ -89,7 +89,7 @@ python cookbook/transformers/fsdp2.py
 
 ### GRPO Reinforcement Learning (8-card)
 
-**Example**: [cookbook/rl/grpo.py](https://github.com/modelscope/twinkle/blob/main/cookbook/rl/grpo.py)
+**Example**: [cookbook/rl/grpo.py](https://github.com/modelscope/twinkle/blob/main/cookbook/rl/grpo/grpo.py)
 
 ```bash
 export ASCEND_RT_VISIBLE_DEVICES=0,1,2,3,4,5,6,7

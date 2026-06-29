@@ -5,8 +5,9 @@
   "packageManager": "pnpm@10.14.0",
   "description": "Twinkle technical blog and documentation site powered by Hugo Blox",
   "scripts": {
-    "dev": "hugo server --disableFastRender",
-    "build": "hugo --minify && pnpm run pagefind",
+    "sync-docs": "python3 scripts/sync-docs.py",
+    "dev": "python3 scripts/sync-docs.py && hugo server --disableFastRender",
+    "build": "python3 scripts/sync-docs.py && hugo --minify && pnpm run pagefind",
     "pagefind": "pagefind --site public"
   },
   "dependencies": {

@@ -185,3 +185,5 @@ After training, you can:
 3. Start training!
 
 Questions? Open an issue on [GitHub](https://github.com/modelscope/twinkle/issues) or join our WeChat group.
+
+> **Clarification**: TaaS currently offers LoRA-based training as a managed service. The Twinkle framework itself supports both **full-parameter** and **LoRA** training when running locally or on your own cluster. See the [Cookbook](/showcase/) for full-parameter examples.

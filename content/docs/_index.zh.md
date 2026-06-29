@@ -13,6 +13,8 @@ title: Twinkle 文档
 
 {{< cards >}}
   {{< card url="getting-started" title="快速入门" icon="rocket-launch" subtitle="5 分钟内安装并执行首次训练" >}}
-  {{< card url="guide/" title="用户指南" icon="book-open" subtitle="深入了解架构、组件和部署" >}}
+  {{< card url="guide/" title="概念与架构" icon="book-open" subtitle="深入了解架构、运行模式和部署" >}}
+  {{< card url="usage-guide/" title="实战教程" icon="document-text" subtitle="分步指南：训练指南、Qwen3.5、Embedding 训练" >}}
+  {{< card url="components/" title="组件" icon="puzzle-piece" subtitle="数据集、模型、采样器、奖励等" >}}
   {{< card url="reference/" title="API 参考" icon="code-bracket" subtitle="组件 API 和定制" >}}
 {{< /cards >}}

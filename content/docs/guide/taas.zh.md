@@ -88,28 +88,71 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 ray start --head --port=6379 --num-gpus=4
 CUDA_VISIBLE_DEVICES=4,5,6,7 ray start --address=head:6379 --num-gpus=4
 ```
 
-### 2. 启动训练服务端
+### 2. 编写 server_config.yaml
 
-```python
-# server.py
-import twinkle
-from twinkle import DeviceGroup
+```yaml
+http_options:
+  host: 0.0.0.0
+  port: 8000
 
-device_groups = [
-    DeviceGroup(name='model', ranks=4, device_type='cuda'),
-    DeviceGroup(name='sampler', ranks=4, device_type='cuda'),
-]
+applications:
+  - name: server
+    route_prefix: /api/v1
+    import_path: server
+    args:
+      supported_models:
+        - Qwen/Qwen3.5-4B
+    deployments:
+      - name: TinkerCompatServer
+        ray_actor_options:
+          num_cpus: 0.1
 
-twinkle.initialize(mode='http', groups=device_groups)
+  - name: models-Qwen3.5-4B
+    route_prefix: /api/v1/model/Qwen/Qwen3.5-4B
+    import_path: model
+    args:
+      backend: transformers
+      model_id: "ms://Qwen/Qwen3.5-4B"
+      nproc_per_node: 1
+      device_group:
+        name: model
+        ranks: 1
+        device_type: cuda
+      device_mesh:
+        device_type: cuda
+        dp_size: 1
+    deployments:
+      - name: ModelManagement
+        ray_actor_options:
+          num_cpus: 0.1
 
-# 服务启动于 http://0.0.0.0:8000
+  - name: processor
+    route_prefix: /api/v1/processor
+    import_path: processor
+    args:
+      ncpu_proc_per_node: 2
+      device_group:
+        name: model
+        ranks: 2
+        device_type: CPU
+      device_mesh:
+        device_type: CPU
+        dp_size: 2
+    deployments:
+      - name: ProcessorManagement
+        ray_actor_options:
+          num_cpus: 0.1
 ```
+
+> 完整配置参考请见 [服务端文档](/zh/docs/guide/server-client/)。
+
+### 3. 启动服务端
 
 ```bash
-python server.py
+twinkle-server launch -c server_config.yaml
 ```
 
-### 3. 连接客户端
+### 4. 连接客户端
 
 ```python
 from twinkle_client import init_twinkle_client
@@ -153,7 +196,7 @@ client = init_twinkle_client(
 
 ### 管理
 
-- `GET /health` - 服务健康检查
+- `GET /healthz` - 服务健康检查
 - `GET /metrics` - 训练指标
 
 ## 监控

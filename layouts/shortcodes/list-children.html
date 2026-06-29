@@ -1,0 +1,22 @@
+{{ $pages := .Page.Pages }}
+{{ if $pages }}
+<div class="list-children-grid">
+{{ range $pages }}
+  <a href="{{ .RelPermalink }}" class="list-children-card">
+    <span class="card-title">{{ .Title }}</span>
+    {{ with .Description }}<span class="card-desc">{{ . }}</span>{{ end }}
+  </a>
+{{ end }}
+</div>
+{{ end }}
+{{ $pages := .Page.Pages }}
+{{ if $pages }}
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+{{ range $pages }}
+  <a href="{{ .RelPermalink }}" style="display: flex; flex-direction: column; padding: 1rem 1.25rem; border: 1px solid #e5e7eb; border-radius: 0.5rem; text-decoration: none; color: inherit; transition: box-shadow 0.2s, border-color 0.2s;" onmouseover="this.style.borderColor='#6366f1';this.style.boxShadow='0 4px 6px -1px rgba(0,0,0,0.1)'" onmouseout="this.style.borderColor='#e5e7eb';this.style.boxShadow='none'">
+    <span style="font-weight: 600; font-size: 0.95rem;">{{ .Title }}</span>
+    {{ with .Description }}<span style="margin-top: 0.25rem; font-size: 0.85rem; color: #6b7280;">{{ . }}</span>{{ end }}
+  </a>
+{{ end }}
+</div>
+{{ end }}

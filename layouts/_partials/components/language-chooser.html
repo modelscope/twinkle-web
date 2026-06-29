@@ -1,0 +1,28 @@
+{{/* Horizontal tab-style language switcher */}}
+{{ $page := .page }}
+{{- if $page.IsTranslated -}}
+<div class="lang-switcher">
+  <span class="lang-switcher-active">
+    {{- if eq $page.Lang "en" }}EN{{ else }}中文{{ end -}}
+  </span>
+  {{ range $page.Translations }}
+  <a href="{{ .Permalink }}" class="lang-switcher-link">
+    {{- if eq .Lang "en" }}EN{{ else }}中文{{ end -}}
+  </a>
+  {{ end }}
+</div>
+{{- end -}}
+{{/* Horizontal tab-style language switcher */}}
+{{ $page := .page }}
+{{- if $page.IsTranslated -}}
+<div style="display: inline-flex; align-items: center; background: #f1f5f9; border-radius: 6px; padding: 2px; gap: 2px; font-size: 0.8rem; font-weight: 500;">
+  <span style="padding: 0.25rem 0.6rem; border-radius: 4px; background: #6366f1; color: white;">
+    {{- if eq $page.Lang "en" }}EN{{ else }}中文{{ end -}}
+  </span>
+  {{ range $page.Translations }}
+  <a href="{{ .Permalink }}" style="padding: 0.25rem 0.6rem; border-radius: 4px; text-decoration: none; color: #475569; transition: background 0.15s;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='transparent'">
+    {{- if eq .Lang "en" }}EN{{ else }}中文{{ end -}}
+  </a>
+  {{ end }}
+</div>
+{{- end -}}

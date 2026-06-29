@@ -1,11 +1,11 @@
 ---
-title: 用户指南
+title: 概念与架构
 weight: 2
 sidebar:
   open: true
 ---
 
-Twinkle 配置、部署和扩展的综合指南。
+Twinkle 架构、运行模式与部署的综合指南。
 
 {{< cards >}}
   {{< card url="architecture" title="架构" icon="cpu-chip" >}}

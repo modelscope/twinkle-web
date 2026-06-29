@@ -187,6 +187,78 @@ for data in dataloader:
     break
 ```
 
+## After Deployment: OpenAI-Compatible API
+
+After deploying your model with Twinkle Server, you get an **OpenAI-compatible API** out of the box. Any OpenAI SDK or tool can directly call your model for inference:
+
+```bash
+# Start the server
+twinkle-server launch -c server_config.yaml
+```
+
+> For details on writing `server_config.yaml`, see [Server & Client Guide](../guide/server-client/).
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url='http://localhost:8000/api/v1',
+    api_key='your-token',
+)
+
+response = client.chat.completions.create(
+    model='Qwen/Qwen3.5-4B',
+    messages=[{'role': 'user', 'content': 'Hello!'}],
+    temperature=0.7,
+    stream=True,
+)
+for chunk in response:
+    print(chunk.choices[0].delta.content, end='')
+```
+
+Supported endpoints:
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/chat/completions` | POST | Chat completions (streaming & non-streaming) |
+| `/models` | GET | List available models |
+
+Features include full streaming support (SSE), sticky session routing for adapter isolation, automatic chat template initialization, and adapter-to-base-model resolution.
+
+## Auto Research: Train with Natural Language
+
+Auto Research is Twinkle's built-in LLM agent terminal that autonomously handles the entire training workflow through natural language — from cluster setup, script generation, and training launch to error diagnosis and auto-fix, without writing any shell commands:
+
+```bash
+# Install the client
+pip install twinkle-client
+
+# Launch Auto Research with a local LLM
+twinkle-tui --llm-base-url http://localhost:11434/v1 --llm-model qwen3.5
+
+# Or with a remote API
+twinkle-tui --llm-base-url https://api.example.com/v1 --llm-api-key sk-xxx --llm-model gpt-4o
+```
+
+**What you can do:**
+
+- *"Start a GRPO training with Qwen3.5-4B on gsm8k"* — auto-generates scripts and launches training
+- *"How is the training going?"* — real-time metrics and status monitoring
+- *"Show me the reward metrics, zoom into steps 100-200"* — interactive chart visualization
+- *"Search for math datasets on ModelScope"* — model and dataset discovery
+
+**Key capabilities:**
+
+| Feature | Description |
+|---------|-------------|
+| Training lifecycle | Start, pause, resume, stop with checkpoint saving |
+| Server management | Auto GPU partitioning, Ray cluster setup, health checks |
+| Auto-fix | Detects crashes, diagnoses errors, rewrites scripts, and restarts (up to 3 attempts) |
+| Real-time monitoring | ASCII metrics charts, log streaming, health checks every 30s |
+| Skills system | Extensible plugin architecture (bundled + local + community) |
+
+Auto Research turns ML training into a conversation — describe what you want to train, and the agent handles everything from server setup to troubleshooting.
+
 ## Supported Hardware
 
 | Hardware | Notes |
@@ -200,12 +272,12 @@ for data in dataloader:
 ## Next Steps
 
 {{< cards >}}
-  {{< card url="../guide/architecture" title="Architecture" icon="cpu-chip" subtitle="Understand the client-server architecture" >}}
   {{< card url="../guide/components" title="Components" icon="puzzle-piece" subtitle="Explore Dataset, Model, Sampler, and more" >}}
   {{< card url="../guide/runtime-modes" title="Runtime Modes" icon="server-stack" subtitle="torchrun, Ray, and HTTP deployment" >}}
-  {{< card url="../guide/server-client" title="Server & Client" icon="arrows-right-left" subtitle="HTTP training service architecture" >}}
   {{< card url="../guide/multi-tenancy" title="Multi-Tenancy" icon="user-group" subtitle="Train multiple LoRAs on shared base model" >}}
-  {{< card url="../guide/npu-support" title="NPU Support" icon="chip" subtitle="Ascend NPU training guide" >}}
+  {{< card url="../guide/server-client" title="Server & Client" icon="arrows-right-left" subtitle="HTTP training service architecture" >}}
   {{< card url="../guide/taas" title="Training as a Service" icon="cloud" subtitle="Deploy enterprise-grade training services" >}}
   {{< card url="../guide/cookbook" title="Cookbook" icon="book-open" subtitle="FSDP, MoE, RL training examples" >}}
+  {{< card url="../guide/npu-support" title="NPU Support" icon="chip" subtitle="Ascend NPU training guide" >}}
+  {{< card url="../guide/architecture" title="Architecture" icon="cpu-chip" subtitle="Understand the client-server architecture" >}}
 {{< /cards >}}

@@ -185,3 +185,5 @@ for i, seq in enumerate(result.sequences):
 3. 开始训练！
 
 有问题？在 [GitHub](https://github.com/modelscope/twinkle/issues) 上提 issue 或加入我们的微信群。
+
+> **说明**：TaaS 目前提供基于 LoRA 的托管训练服务。Twinkle 框架本身在本地或自建集群上同时支持**全参数训练**和 **LoRA 训练**。全参数训练示例请参见 [Cookbook](/zh/showcase/)。
