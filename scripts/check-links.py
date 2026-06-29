@@ -21,12 +21,14 @@ from urllib.parse import unquote
 WEB_ROOT = Path(__file__).resolve().parent.parent
 CONTENT_DIR = WEB_ROOT / "content"
 
-# Regex to find Markdown links: [text](url)
-LINK_RE = re.compile(r'\[([^\]]*)\]\(([^)]+)\)')
+# Regex to find Markdown links: [text](url) but NOT images ![alt](url)
+# Also handles optional title: [text](url "title")
+LINK_RE = re.compile(r'(?<!!)\[([^\]]*)\]\(([^)" ]+)(?:\s+"[^"]*")?\)')
 
 # Skip patterns
 SKIP_PREFIXES = (
     "http://", "https://", "mailto:", "#", "{{",
+    "/",  # site-root absolute paths handled by Hugo, not filesystem
 )
 
 

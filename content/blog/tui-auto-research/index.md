@@ -1,6 +1,8 @@
 ---
 title: "TUI & Auto-Research: An AI Agent for Training Control"
 date: 2026-06-01
+aliases:
+  - /blog/auto-research/
 tags:
   - TUI
   - Agent

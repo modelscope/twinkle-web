@@ -1,6 +1,8 @@
 ---
 title: "TUI 与 Auto-Research：用 AI Agent 控制训练"
 date: 2026-06-01
+aliases:
+  - /blog/auto-research/
 tags:
   - TUI
   - Agent

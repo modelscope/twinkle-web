@@ -77,6 +77,14 @@ jobs:
         echo "HUGO_VERSION=$VERSION" >> $GITHUB_ENV
         echo "Using Hugo version: $VERSION"
 
+    - name: Checkout twinkle docs
+      uses: actions/checkout@v4
+      with:
+        repository: modelscope/twinkle
+        path: twinkle
+        sparse-checkout: docs/
+        sparse-checkout-cone-mode: true
+
     - name: Install dependencies
       run: |
         # Install Tailwind CLI if package.json exists
@@ -111,6 +119,14 @@ jobs:
           'hugo.yaml', 'package.json') }}
         restore-keys: |
           ${{ runner.os }}-hugo-resources-
+
+    - name: Sync docs from twinkle repo
+      env:
+        TWINKLE_DOCS_DIR: ${{ github.workspace }}/twinkle/docs
+      run: python3 scripts/sync-docs.py
+
+    - name: Check internal links
+      run: python3 scripts/check-links.py
 
     - name: Build with Hugo
       env:

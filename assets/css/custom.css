@@ -626,3 +626,93 @@ footer {
   white-space: nowrap;
 }
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   Language Switcher
+   ───────────────────────────────────────────────────────────────────────────── */
+.lang-switcher {
+  display: inline-flex;
+  align-items: center;
+  background: var(--twinkle-surface-alt);
+  border-radius: 6px;
+  padding: 2px;
+  gap: 2px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.lang-switcher-active {
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  background: var(--twinkle-primary);
+  color: white;
+}
+
+.lang-switcher-link {
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  text-decoration: none;
+  color: var(--twinkle-text-secondary);
+  transition: background 0.15s;
+}
+
+.lang-switcher-link:hover {
+  background: var(--twinkle-border);
+}
+
+.dark .lang-switcher {
+  background: #334155;
+}
+
+.dark .lang-switcher-link {
+  color: #cbd5e1;
+}
+
+.dark .lang-switcher-link:hover {
+  background: #475569;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   List Children Shortcode
+   ───────────────────────────────────────────────────────────────────────────── */
+.list-children-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.list-children-card {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--twinkle-border);
+  border-radius: 0.5rem;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.list-children-card:hover {
+  border-color: var(--twinkle-primary);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.list-children-card .card-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.list-children-card .card-desc {
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--twinkle-text-secondary);
+}
+
+.dark .list-children-card {
+  border-color: #334155;
+}
+
+.dark .list-children-card:hover {
+  border-color: var(--twinkle-primary-light);
+}
+
