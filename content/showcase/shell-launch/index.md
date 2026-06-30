@@ -2,6 +2,7 @@
 title: Shell Launch (torchrun)
 linkTitle: Shell Launch
 weight: 10
+date: 2026-05-01
 ---
 
 The standard way to launch local multi-GPU training with torchrun:

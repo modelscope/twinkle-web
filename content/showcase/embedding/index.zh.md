@@ -2,6 +2,7 @@
 title: Embedding 训练
 linkTitle: Embedding
 weight: 60
+date: 2026-05-28
 ---
 
 使用 InfoNCE 对比损失训练 Embedding 模型。支持全参数或 LoRA 微调。

@@ -2,6 +2,7 @@
 title: Embedding Training
 linkTitle: Embedding
 weight: 60
+date: 2026-05-28
 ---
 
 Train embedding models with InfoNCE contrastive loss. Supports both full-parameter and LoRA fine-tuning.

@@ -2,6 +2,7 @@
 title: 多轮 RL (OpenEnv)
 linkTitle: 多轮 RL
 weight: 70
+date: 2026-06-08
 ---
 
 多轮 GRPO + 交互式环境 — Agent 通过 tool call 与环境交互，从 episode reward 中学习。

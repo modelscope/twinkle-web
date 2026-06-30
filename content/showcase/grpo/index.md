@@ -2,6 +2,7 @@
 title: GRPO (Reinforcement Learning)
 linkTitle: GRPO
 weight: 50
+date: 2026-05-22
 ---
 
 Group Relative Policy Optimization with vLLM sampling and custom reward functions (e.g. GSM8K math).

@@ -2,6 +2,7 @@
 title: SFT — Transformers FSDP2
 linkTitle: SFT (FSDP2)
 weight: 20
+date: 2026-05-05
 ---
 
 Supervised fine-tuning with FSDP2 sharding and the Muon optimizer. Supports both full-parameter and LoRA training.

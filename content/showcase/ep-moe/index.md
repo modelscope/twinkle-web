@@ -2,6 +2,7 @@
 title: EP + MoE (DeepSeek V4 / Qwen3.5 MoE)
 linkTitle: EP + MoE
 weight: 40
+date: 2026-05-18
 ---
 
 Expert-parallel + FSDP2 for Mixture-of-Experts models like DeepSeek V4 and Qwen3.5 MoE.

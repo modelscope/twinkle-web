@@ -2,6 +2,7 @@
 title: On-Policy 蒸馏 (GKD)
 linkTitle: GKD 蒸馏
 weight: 60
+date: 2026-06-02
 ---
 
 广义知识蒸馏：学生 on-policy 生成，教师提供 top-k logprobs，学生学习匹配教师分布。

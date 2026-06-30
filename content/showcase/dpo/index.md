@@ -2,6 +2,7 @@
 title: DPO (Preference Optimization)
 linkTitle: DPO
 weight: 80
+date: 2026-06-15
 ---
 
 Direct Preference Optimization — align models using human preference data without reward modeling. Supports sigmoid/hinge/IPO/SimPO/ORPO/CPO variants.

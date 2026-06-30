@@ -2,6 +2,7 @@
 title: Ascend NPU — Megatron on MindSpeed
 linkTitle: NPU (Ascend)
 weight: 35
+date: 2026-05-12
 ---
 
 Training on Huawei Ascend NPUs using the Megatron backend with MindSpeed integration.

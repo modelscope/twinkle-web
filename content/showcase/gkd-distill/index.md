@@ -2,6 +2,7 @@
 title: On-Policy Distillation (GKD)
 linkTitle: GKD Distill
 weight: 60
+date: 2026-06-02
 ---
 
 Generalized Knowledge Distillation: student generates on-policy, teacher provides top-k logprobs, student learns to match teacher's distribution.

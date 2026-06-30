@@ -2,6 +2,7 @@
 title: GRPO (强化学习)
 linkTitle: GRPO
 weight: 50
+date: 2026-05-22
 ---
 
 Group Relative Policy Optimization — 使用 vLLM 采样 + 自定义奖励函数（如 GSM8K 数学）。

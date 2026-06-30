@@ -2,6 +2,7 @@
 title: EP + MoE (DeepSeek V4 / Qwen3.5 MoE)
 linkTitle: EP + MoE
 weight: 40
+date: 2026-05-18
 ---
 
 专家并行 + FSDP2，适用于 DeepSeek V4、Qwen3.5 MoE 等 MoE 模型。

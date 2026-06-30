@@ -2,6 +2,7 @@
 title: Megatron 张量并行训练
 linkTitle: Megatron TP
 weight: 30
+date: 2026-05-10
 ---
 
 通过 Megatron 后端进行张量并行训练 — 适用于单卡放不下的大模型。

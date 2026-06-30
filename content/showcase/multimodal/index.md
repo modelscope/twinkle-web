@@ -2,6 +2,7 @@
 title: Multimodal SFT (VLM)
 linkTitle: Multimodal
 weight: 90
+date: 2026-06-20
 ---
 
 Vision-language model fine-tuning with image inputs (e.g. LaTeX OCR, Gemma4).

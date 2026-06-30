@@ -2,6 +2,7 @@
 title: DPO (偏好优化)
 linkTitle: DPO
 weight: 80
+date: 2026-06-15
 ---
 
 Direct Preference Optimization — 使用人类偏好数据对齐模型，无需显式 reward 建模。支持 sigmoid/hinge/IPO/SimPO/ORPO/CPO 变体。

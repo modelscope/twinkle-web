@@ -2,6 +2,7 @@
 title: Shell 启动 (torchrun)
 linkTitle: Shell 启动
 weight: 10
+date: 2026-05-01
 ---
 
 标准多卡本地训练的 torchrun 启动方式：

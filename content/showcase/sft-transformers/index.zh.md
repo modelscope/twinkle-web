@@ -2,6 +2,7 @@
 title: SFT — Transformers FSDP2
 linkTitle: SFT (FSDP2)
 weight: 20
+date: 2026-05-05
 ---
 
 使用 FSDP2 分片 + Muon 优化器的监督微调。支持全参数和 LoRA 训练。

@@ -2,6 +2,7 @@
 title: 多模态 SFT (VLM)
 linkTitle: 多模态
 weight: 90
+date: 2026-06-20
 ---
 
 视觉语言模型微调，支持图片输入（如 LaTeX OCR、Gemma4）。

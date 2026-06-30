@@ -2,6 +2,7 @@
 title: Multi-Turn RL (OpenEnv)
 linkTitle: Multi-Turn RL
 weight: 70
+date: 2026-06-08
 ---
 
 Multi-turn GRPO with interactive environments — the agent takes actions via tool calls and learns from episode rewards.

@@ -2,6 +2,7 @@
 title: 昇腾 NPU — Megatron + MindSpeed
 linkTitle: NPU（昇腾）
 weight: 35
+date: 2026-05-12
 ---
 
 使用 Megatron 后端在华为昇腾 NPU 上训练，集成 MindSpeed 加速。

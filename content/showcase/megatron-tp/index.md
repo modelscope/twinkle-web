@@ -2,6 +2,7 @@
 title: Megatron TP Training
 linkTitle: Megatron TP
 weight: 30
+date: 2026-05-10
 ---
 
 Tensor-parallel training via Megatron backend — ideal for large models that don't fit on a single GPU.
