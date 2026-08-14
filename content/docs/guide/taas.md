@@ -23,8 +23,8 @@ from twinkle.dataset import Dataset, DatasetMeta
 from twinkle.preprocessor import SelfCognitionProcessor
 from twinkle.server.common import input_feature_to_datum
 
-# The base model (currently Qwen3.6-27B)
-base_model = 'Qwen/Qwen3.6-27B'
+# The base model (currently Qwen3.8-27B)
+base_model = 'Qwen/Qwen3.8-27B'
 
 # Prepare dataset
 dataset = Dataset(dataset_meta=DatasetMeta(
@@ -167,6 +167,7 @@ client = init_twinkle_client(
 
 | Model | Size | HuggingFace ID | Megatron |
 |:------|:-----|:---------------|:---------|
+| Qwen3.8 | 27B | Qwen/Qwen3.8-* | Yes |
 | Qwen3.6 | 4B-35B-A3B | Qwen/Qwen3.6-* | Yes |
 | Qwen3.5 | 2B-27B | Qwen/Qwen3.5-* | Yes |
 | Qwen3 | 0.6B-32B | Qwen/Qwen3-* | Yes |
