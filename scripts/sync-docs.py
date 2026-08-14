@@ -13,9 +13,11 @@ It should NOT be gitignored — only the generated output directories are.
 """
 
 import os
+import posixpath
 import re
 import shutil
 from pathlib import Path
+from urllib.parse import unquote
 
 # ---------------------------------------------------------------------------
 # Path setup
@@ -127,11 +129,19 @@ TITLE_OVERRIDES = {
 
 def slugify(name: str) -> str:
     """Convert a directory/file name to a Hugo-friendly slug."""
-    s = name.lower().strip()
+    s = unquote(name).lower().strip()     # "Usage%20Guide" -> "usage guide"
     s = re.sub(r"[_ ]+", "-", s)          # spaces / underscores -> hyphens
     s = re.sub(r"[^a-z0-9\-.]", "", s)    # strip non-ascii
     s = re.sub(r"-{2,}", "-", s)          # collapse double hyphens
     return s.strip("-")
+
+
+def slugify_path_segment(name: str) -> str:
+    """Slugify one path segment of a link, mapping Chinese section directory
+    names to their English slug (Chinese names would otherwise slugify to "").
+    """
+    decoded = unquote(name)
+    return slugify(ZH_SECTION_TITLES.get(decoded, decoded))
 
 
 def extract_title_from_md(content: str) -> str:
@@ -164,6 +174,12 @@ def strip_first_heading(content: str) -> str:
 # Link rewriting
 # ---------------------------------------------------------------------------
 
+# Source .md file (resolved path, EN and ZH) -> output page path relative to
+# OUT_DIR without extension, e.g. "components/agentic/envs".
+# Filled in before any file is written so links can point at pages that are
+# synced later.
+PAGE_REGISTRY: dict[Path, str] = {}
+
 # Mapping: broken relative path pattern -> corrected path
 # Supports both exact matches and regex-based rewrites
 LINK_REWRITES = {
@@ -185,46 +201,60 @@ LINK_REWRITES = {
 }
 
 
-def rewrite_links(content: str) -> str:
+def rewrite_links(content: str, src_file: Path | None = None,
+                  page_path: str | None = None) -> str:
     """Rewrite broken internal links to correct Hugo paths.
-    
+
     Handles:
     1. Exact path rewrites from LINK_REWRITES mapping
-    2. Case-insensitive .md references (slugify them)
+    2. References to synced .md files, resolved through PAGE_REGISTRY so the
+       exact output URL is known (works for English and Chinese sources)
+    3. Fallback slugification for .md references outside the toctree
+
+    ``src_file`` is the source file being converted and ``page_path`` its output
+    page path relative to OUT_DIR. Every synced file is a Hugo leaf page served
+    from a virtual directory (page.md -> /page/), so relative links resolve from
+    that virtual directory and need one extra "../" to reach a sibling.
     """
     def replace_link(match):
         full_match = match.group(0)
         text = match.group(1)
         target = match.group(2)
-        
+
         # Check exact rewrites (including URL-decoded version)
-        from urllib.parse import unquote
         decoded = unquote(target)
         if target in LINK_REWRITES:
             return f"[{text}]({LINK_REWRITES[target]})"
         if decoded in LINK_REWRITES:
             return f"[{text}]({LINK_REWRITES[decoded]})"
-        
-        # Auto-slugify .md references: "Dir/File.md" -> "dir/file/"
-        # NOTE: All synced files are Hugo leaf pages, which get a virtual
-        # directory (e.g. page.md -> URL /page/). Sibling references need
-        # "../" to escape the virtual directory first.
-        if target.endswith(".md") and not target.startswith(("http://", "https://")):
-            parts = target.split("/")
-            filename = parts[-1][:-3]  # strip .md
-            slug = slugify(filename)
-            if len(parts) == 1:
-                # Bare sibling: "File.md" -> "../file/"
-                return f"[{text}](../{slug}/)"
-            # Reconstruct with relative prefix preserved
-            prefix = "/".join(p if p in (".", "..") else slugify(p) for p in parts[:-1])
-            # "./File.md" -> prefix is ".", should become "../file/"
-            if prefix == ".":
-                return f"[{text}](../{slug}/)"
-            return f"[{text}]({prefix}/{slug}/)"
-        
-        return full_match
-    
+
+        if target.startswith(("http://", "https://", "mailto:", "#", "/")):
+            return full_match
+
+        path, _, anchor = decoded.partition("#")
+        if not path.endswith(".md"):
+            return full_match
+        suffix = f"#{anchor}" if anchor else ""
+
+        # Preferred: the target is a synced page, so its output URL is known
+        if src_file is not None and page_path is not None:
+            resolved = (src_file.parent / path).resolve()
+            dest = PAGE_REGISTRY.get(resolved)
+            if dest:
+                rel = posixpath.relpath(dest, page_path)
+                return f"[{text}]({rel}/{suffix})"
+
+        # Fallback: slugify the reference. "Dir/File.md" -> "../dir/file/"
+        parts = path.split("/")
+        slug = slugify(parts[-1][:-3])     # strip .md
+        rel_parts = [".."]                 # escape the virtual directory first
+        for part in parts[:-1]:
+            if part == ".":
+                continue
+            rel_parts.append(part if part == ".." else slugify_path_segment(part))
+        rel = "/".join(p for p in rel_parts if p)
+        return f"[{text}]({rel}/{slug}/{suffix})"
+
     return re.sub(r'\[([^\]]*)\]\(([^)]+)\)', replace_link, content)
 
 def parse_toctree(rst_path: Path) -> tuple[str, list[str]]:
@@ -329,8 +359,22 @@ def write_index(out_dir: Path, title: str, weight: int,
     (out_dir / "_index.zh.md").write_text("\n".join(lines_zh), encoding="utf-8")
 
 
+def queue_md_file(src_en: Path, src_zh: Path | None,
+                  dest_dir: Path, weight: int, plan: list):
+    """Register one page's output path and queue it for writing.
+
+    Registration must happen for every page before the first file is written,
+    otherwise links to pages processed later cannot be resolved.
+    """
+    page_path = (dest_dir.relative_to(OUT_DIR) / slugify(src_en.stem)).as_posix()
+    PAGE_REGISTRY[src_en.resolve()] = page_path
+    if src_zh:
+        PAGE_REGISTRY[src_zh.resolve()] = page_path
+    plan.append((src_en, src_zh, dest_dir, weight, page_path))
+
+
 def sync_md_file(src_en: Path, src_zh: Path | None,
-                 dest_dir: Path, weight: int):
+                 dest_dir: Path, weight: int, page_path: str):
     """Copy one English .md (and its Chinese counterpart) into dest_dir."""
     dest_dir.mkdir(parents=True, exist_ok=True)
 
@@ -342,14 +386,14 @@ def sync_md_file(src_en: Path, src_zh: Path | None,
     slug = slugify(src_en.stem) + ".md"
 
     # Check title overrides (key = relative path under OUT_DIR without .md)
-    override_key = str(dest_dir.relative_to(OUT_DIR) / slugify(src_en.stem))
+    override_key = page_path
     if override_key in TITLE_OVERRIDES:
         title = TITLE_OVERRIDES[override_key][0]
 
     # Strip the first heading since Hugo uses front-matter title
     body = strip_first_heading(content_en)
     # Rewrite broken links
-    body = rewrite_links(body)
+    body = rewrite_links(body, src_en, page_path)
     out_en = add_front_matter(body, title, weight)
 
     (dest_dir / slug).write_text(out_en, encoding="utf-8")
@@ -362,8 +406,8 @@ def sync_md_file(src_en: Path, src_zh: Path | None,
         if override_key in TITLE_OVERRIDES:
             title_zh = TITLE_OVERRIDES[override_key][1]
         body_zh = strip_first_heading(content_zh)
-        # Rewrite broken links
-        body_zh = rewrite_links(body_zh)
+        # Rewrite broken links (relative to the Chinese source location)
+        body_zh = rewrite_links(body_zh, src_zh, page_path)
         out_zh = add_front_matter(body_zh, title_zh, weight)
         zh_slug = slugify(src_en.stem) + ".zh.md"
         (dest_dir / zh_slug).write_text(out_zh, encoding="utf-8")
@@ -444,7 +488,7 @@ def _recurse_section_map(en_index: Path, zh_index: Path,
 
 
 def process_section(en_section_dir: Path, out_base: Path,
-                    section_weight: int, en_zh_map: dict):
+                    section_weight: int, en_zh_map: dict, plan: list):
     """Recursively process an English section directory."""
     index_rst = en_section_dir / "index.rst"
     if not index_rst.exists():
@@ -466,17 +510,17 @@ def process_section(en_section_dir: Path, out_base: Path,
         if entry.endswith("index.rst"):
             # Sub-section
             sub_dir = entry_path.parent
-            process_section(sub_dir, out_dir, sub_weight, en_zh_map)
+            process_section(sub_dir, out_dir, sub_weight, en_zh_map, plan)
         elif entry.endswith(".md"):
             if entry_path.exists():
                 zh_file = en_zh_map.get(entry_path)
-                sync_md_file(entry_path, zh_file, out_dir, sub_weight)
+                queue_md_file(entry_path, zh_file, out_dir, sub_weight, plan)
         sub_weight += 1
 
 
 def process_top_level_section(section_name: str, en_base: Path,
                               out_base: Path, section_weight: int,
-                              en_zh_map: dict):
+                              en_zh_map: dict, plan: list):
     """Process a top-level section (Usage Guide or Components)."""
     en_dir = en_base / section_name
     if not en_dir.exists():
@@ -504,11 +548,11 @@ def process_top_level_section(section_name: str, en_base: Path,
         if entry.endswith("index.rst"):
             # It's a sub-section directory
             sub_dir = entry_path.parent
-            process_section(sub_dir, out_dir, sub_weight, en_zh_map)
+            process_section(sub_dir, out_dir, sub_weight, en_zh_map, plan)
         elif entry.endswith(".md"):
             if entry_path.exists():
                 zh_file = en_zh_map.get(entry_path)
-                sync_md_file(entry_path, zh_file, out_dir, sub_weight)
+                queue_md_file(entry_path, zh_file, out_dir, sub_weight, plan)
         sub_weight += 1
 
 
@@ -532,15 +576,22 @@ def main():
             shutil.rmtree(target)
             print(f"  [CLEAN] {target}")
 
+    # Phase 1: walk the toctrees, write section indexes and register every page
+    plan: list = []
+
     # Process Usage Guide (weight=10, after getting-started at weight=1)
     process_top_level_section("Usage Guide", DOCS_EN,
                               OUT_DIR, section_weight=10,
-                              en_zh_map=en_zh_map)
+                              en_zh_map=en_zh_map, plan=plan)
 
     # Process Components (weight=20)
     process_top_level_section("Components", DOCS_EN,
                               OUT_DIR, section_weight=20,
-                              en_zh_map=en_zh_map)
+                              en_zh_map=en_zh_map, plan=plan)
+
+    # Phase 2: write the pages, now that every link target is known
+    for src_en, src_zh, dest_dir, weight, page_path in plan:
+        sync_md_file(src_en, src_zh, dest_dir, weight, page_path)
 
     # Count output files
     total = sum(1 for _ in OUT_DIR.rglob("*.md")
