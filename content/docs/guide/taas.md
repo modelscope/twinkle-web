@@ -9,7 +9,7 @@ Twinkle provides built-in capabilities for deploying enterprise-grade Training a
 
 Twinkle powers the training service on ModelScope. You can experience Twinkle's training API for free:
 
-1. Join the [Twinkle-Explorers](https://modelscope.cn/organization/twinkle-explorers) organization
+1. Get your [API key](https://www.modelscope.cn/my/access/token)
 2. Use the API endpoint: `base_url=https://www.modelscope.cn/twinkle`
 
 ## Serverless Training

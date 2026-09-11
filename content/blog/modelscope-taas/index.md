@@ -22,11 +22,10 @@ Currently available model: **[Qwen/Qwen3.8-27B](https://www.modelscope.cn/models
 
 ## Getting Started
 
-### Step 1: Join Twinkle-Explorers
+### Step 1: Get API Key
 
 1. Register at [ModelScope](https://www.modelscope.cn/)
-2. Apply to join [Twinkle-Explorers](https://modelscope.cn/organization/twinkle-explorers) organization
-3. Once approved, get your API key at: https://www.modelscope.cn/my/access/token
+2. Get your API key at: https://www.modelscope.cn/my/access/token
 
 **Endpoint**: `base_url="https://www.modelscope.cn/twinkle"`
 
@@ -180,7 +179,7 @@ After training, you can:
 
 ## Get Started Now
 
-1. Join [Twinkle-Explorers](https://modelscope.cn/organization/twinkle-explorers)
+1. Get your [API key](https://www.modelscope.cn/my/access/token)
 2. Check out the [Cookbook](https://github.com/modelscope/twinkle/tree/main/cookbook/client/tinker)
 3. Start training!
 

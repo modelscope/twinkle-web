@@ -22,11 +22,10 @@ categories:
 
 ## 快速开始
 
-### 第一步：加入 Twinkle-Explorers
+### 第一步：获取 API Key
 
 1. 在 [魔搭社区](https://www.modelscope.cn/) 注册账号
-2. 申请加入 [Twinkle-Explorers](https://modelscope.cn/organization/twinkle-explorers) 组织
-3. 获批后，在此获取 API Key：https://www.modelscope.cn/my/access/token
+2. 在此获取 API Key：https://www.modelscope.cn/my/access/token
 
 **调用端点**：`base_url="https://www.modelscope.cn/twinkle"`
 
@@ -180,7 +179,7 @@ for i, seq in enumerate(result.sequences):
 
 ## 立即开始
 
-1. 加入 [Twinkle-Explorers](https://modelscope.cn/organization/twinkle-explorers)
+1. 获取 [API Key](https://www.modelscope.cn/my/access/token)
 2. 查看 [Cookbook](https://github.com/modelscope/twinkle/tree/main/cookbook/client/tinker)
 3. 开始训练！
 

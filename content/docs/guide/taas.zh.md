@@ -9,7 +9,7 @@ Twinkle 内置企业级训练即服务（TaaS）部署能力。
 
 Twinkle 驱动魔搭社区的训练服务。你可以免费体验 Twinkle 的训练 API：
 
-1. 加入 [Twinkle-Explorers](https://modelscope.cn/organization/twinkle-explorers) 组织
+1. 获取 [API Key](https://www.modelscope.cn/my/access/token)
 2. 使用 API 端点：`base_url=https://www.modelscope.cn/twinkle`
 
 ## 无服务器训练
