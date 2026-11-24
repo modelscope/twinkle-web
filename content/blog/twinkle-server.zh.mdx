@@ -1,0 +1,22 @@
+---
+title: twinkle-server 的设计
+description: 一个网关背后的多租户训练与推理。
+---
+
+twinkle-server 把训练与推理组件变成长驻服务：网关把请求路由到 *app*
+（模型 app、采样器 app、处理器 app），每个 app 拥有自己的引擎与 GPU 放置。
+
+对用户重要的设计点：
+
+- **命名 LoRA slot 实现多租户。** 一个基座服务多个 adapter；客户端按命名
+  slot 训练或采样，不碰基座权重。slot 生命周期（attach / train / save / detach）
+  显式管理。
+- **训练即 API。** 客户端经 HTTP 构造一次训练；重进程住在服务端。这正是
+  SWIFT `--mode remote` 驱动的东西：本地进程只留驱动逻辑。
+- **checkpoint 即 URI。** 保存的 adapter 以 `twinkle://` 引用返回，采样器
+  可直接消费——不用手工搬权重。
+- **机制留在服务端。** Ray head、device mesh、权重同步通道是服务端的事；
+  客户端发请求、收结果。同一份组件代码本地跑或被服务化跑。
+
+运维要点：每个部署独立 namespace 与端口；run 结束释放引擎；
+`gpu_memory_utilization` 按*被服务的*模型定，不是按客户端笔记本定。

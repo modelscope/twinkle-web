@@ -1,0 +1,30 @@
+---
+title: Choosing a Training Method
+description: SFT, preference alignment, distillation or RL — decision criteria.
+---
+
+Four families, one question: **where does the training signal come from?**
+
+| Method | Signal | Cost | Use when |
+|---|---|---|---|
+| SFT | labeled demonstrations | lowest | you have good input→output pairs |
+| Preference alignment (DPO/KTO/…) | chosen vs rejected pairs | low–medium | you can rank outputs but not write ideals |
+| Distillation | a stronger teacher | medium | a better model exists and can generate |
+| Online RL (GRPO/PPO/…) | a reward function on fresh samples | highest | correctness is checkable (math, code, tools) |
+
+Rules of thumb:
+
+1. **Start with SFT.** It is the cheapest signal and the baseline every other
+   method is measured against. If SFT on your data does not move the metric,
+   fix the data before reaching for RL.
+2. **Preference alignment when ranking is easier than writing.** DPO-family
+   methods need no sampler and no reward model; they are supervised-style runs.
+3. **RL only with a trustworthy reward.** A policy optimizes exactly what the
+   reward measures — reward hacking is the default failure mode, not the
+   exception. Verifiable rewards (exact-match math, unit tests) are the safe
+   starting point.
+4. **Distillation transfers capability, RL discovers it.** If the teacher can
+   already do the task, distillation is usually cheaper than RL.
+
+In SWIFT all four share one configuration surface — switching methods changes
+`--task_type` / `--rlhf_type` and the data, not the infrastructure.

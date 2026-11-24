@@ -1,0 +1,35 @@
+---
+title: WebUI Quick Start
+description: Install ms-webui from source and launch the workbench.
+---
+
+## Prerequisites
+
+- Node.js >= 20
+- A working SWIFT v5 installation in the Python environment the WebUI will
+  drive (`pip install -e .` from the ms-swift source; the launcher gates on
+  ms-swift >= 5.0 and accepts development versions).
+
+## Install & launch (source)
+
+```bash
+git clone https://github.com/modelscope/ms-webui.git
+cd ms-webui/webui
+npm install
+npm run dev
+```
+
+The launcher first checks the driven Python environment, then starts the Vite
+server (default port 5173; it moves to the next free port if occupied — read
+the printed `Local:` URL). Pin a port with `PORT=5180 npm run dev`.
+
+The backend (training/eval/deploy executors, model registry, OpenAI-compatible
+proxy) lives in the dev-server middleware: starting the WebUI means starting
+that server. There is no separate backend process to manage.
+
+## First steps
+
+1. Open the printed URL; the chat page talks to any model registered under
+   Models.
+2. Register a local or hub model, then launch a LoRA SFT from the Train page.
+3. Watch loss/grad_norm live; checkpoints appear in the run's output directory.

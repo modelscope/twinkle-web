@@ -1,24 +1,43 @@
-# Twinkle
+# twinkle-web
 
-**Training workbench to make your model glow**
+Static website for **SWIFT 5** and **Twinkle**, built with [Next.js](https://nextjs.org/)
+(static export) and [Fumadocs](https://fumadocs.dev/). Deployed to GitHub Pages at
+`https://modelscope.github.io/twinkle-web/` — no backend services.
 
-Twinkle is a lightweight, client-server training framework engineered with modular, high-cohesion interfaces for LLM training.
+## Layout
 
-## Key Features
+- `app/`, `components/`, `lib/` — site code (bilingual `en`/`zh`, versioned docs routes).
+- `content/blog|webui|services/` — hand-written site content (MDX, `.zh.mdx` for Chinese).
+- `content/docs/`, `content/news.json`, `content/site-data.json`, `content/perf.json`,
+  `public/images/` — **generated**, do not edit or commit.
+- `scripts/prepare-content.py` — content pipeline: pulls docs from the locked source
+  repositories listed in `content-sources.json` (swift `docs/v5`, twinkle docs,
+  regression perf results) into `content/`.
+- `migration-map.json` — old Hugo URLs rendered as static redirect pages.
 
-- **Loosely Coupled Architecture** — Standardized interfaces with backward compatibility. Use only what you need.
-- **Multiple Runtime Modes** — Run locally with torchrun, scale across Ray clusters, or deploy as HTTP services.
-- **Multi-Framework Support** — Works with both Transformers and Megatron backends.
-- **Multi-Tenancy Training** — Train multiple LoRAs on a shared base model with isolated configurations.
-- **Training as a Service** — Built-in capabilities for automated cluster management and dynamic scaling.
-- **Full Training Control** — Retain control over forward, backward, and step operations for easy debugging.
+## Local development
 
-## Links
+```bash
+npm install
+# source repos are resolved from sibling checkouts by default;
+# ALLOW_DIRTY_SOURCES=1 skips the clean-tree / locked-commit checks.
+ALLOW_DIRTY_SOURCES=1 python3 scripts/prepare-content.py
+npm run dev
+```
 
-- **Source Code**: [github.com/modelscope/twinkle](https://github.com/modelscope/twinkle)
-- **Documentation**: [modelscope.github.io/twinkle-web/docs/](https://modelscope.github.io/twinkle-web/docs/)
-- **Releases**: [github.com/modelscope/twinkle/releases](https://github.com/modelscope/twinkle/releases)
+## Build (static export)
 
-## License
+```bash
+python3 scripts/prepare-content.py
+SITE_BASE_PATH=/twinkle-web npm run build   # outputs ./out
+```
 
-Apache License 2.0
+`SITE_BASE_PATH` must match the GitHub Pages project path. Omit it for serving at a
+domain root. `out/` is fully static and can be served by any file server.
+
+## Deployment
+
+`.github/workflows/deploy.yml` builds on pushes to `main` (or manual dispatch) and
+publishes `out/` via GitHub Pages. Source repositories are checked out at the commits
+pinned in `content-sources.json`; the private regression repo needs the
+`CONTENT_REPO_TOKEN` secret.

@@ -1,0 +1,18 @@
+---
+title: ModelScope 服务
+description: 本体系对接的模型库与算力平台。
+---
+
+[ModelScope](https://modelscope.cn) 是 SWIFT 的默认 hub：`--model` 与
+`--dataset` 的 id 默认在此解析，`--use_hf true` 切 Hugging Face。
+权重缓存在 `MODELSCOPE_CACHE`。
+
+与训练相关的平台服务：
+
+- **模型库**——注册模型族带 ModelScope id；Day-0 支持意味着新模型落地即可训。
+- **Notebook / 算力**——托管 GPU 环境，无本地硬件也能跑示例
+  （见 ms-swift README 的社区资源）。
+- **Studio 部署**——模型服务化；账户与计费操作在平台上，不在本文档站。
+
+链接：[modelscope.cn](https://modelscope.cn) ·
+[ms-swift README](https://github.com/modelscope/ms-swift#readme)。

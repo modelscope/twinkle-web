@@ -1,0 +1,27 @@
+---
+title: Async RL Design
+description: Decoupling sampling from training — staleness is the design variable.
+---
+
+Synchronous RL alternates: sample a batch, train on it, sync weights, repeat.
+The GPUs doing sampling idle during training and vice versa. Async RL removes
+the barrier — samplers keep generating while trainers keep updating — and pays
+for it with **staleness**: a rollout was produced by an older policy than the
+one being updated.
+
+The design therefore revolves around three controls:
+
+1. **Weight publishing cadence.** How often trained weights reach the samplers.
+   More frequent sync = fresher rollouts, more sync traffic.
+2. **Staleness bound.** How old a rollout may be when consumed. Trajectories
+   carry the policy version that produced them; the trainer can reject or
+   down-weight rollouts beyond the bound instead of silently training on
+   off-policy data.
+3. **Placement.** Disaggregated groups (samplers on their own GPUs, trainers on
+   theirs) make the pipeline physically continuous; colocate cannot be fully
+   async because the phases share the same cards.
+
+What stays invariant: the reward contract, the advantage computation and the
+checkpoint semantics are identical to synchronous RL — asynchrony changes
+*when* data arrives, not *what* a training step means. That is why the same
+recipe can run in both modes by configuration.

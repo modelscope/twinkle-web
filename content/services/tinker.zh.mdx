@@ -1,0 +1,25 @@
+---
+title: Tinker 式远程训练
+description: 训练即 API——SWIFT 的 remote 模式与 twinkle-server。
+---
+
+Tinker 普及了一个简单契约：客户端把训练请求（forward/backward、优化步、
+采样）发给拥有 GPU 的服务；客户端从不加载模型权重。SWIFT 的 `--mode remote`
+对 twinkle-server 实现同一形态：
+
+```bash
+swift sft \
+    --mode remote \
+    --server_base_url https://your-twinkle-server.example \
+    --model Qwen/Qwen3.5-4B \
+    --tuner lora --dataset 'swift/self-cognition#600' \
+    --output_dir output
+```
+
+- 本地进程是单进程驱动：无 torchrun、无本地 device mesh、客户端无权重。
+- `--model` 指**服务端被服务的模型 id**，不是本地路径。
+- checkpoint 存服务端、以引用返回；客户端决定导出或推送什么。
+- 同一份 recipe 本地（`--mode local`/`ray`）或远程跑——训练语义不随放置改变。
+
+用 twinkle-server 部署自己的端点（见
+[twinkle 参考](../../docs/5.0.0.dev/twinkle)），或指向说同一契约的托管服务。

@@ -1,0 +1,20 @@
+---
+title: ModelScope
+description: The model hub and compute platform the stack integrates with.
+---
+
+[ModelScope](https://modelscope.cn) is the default hub for SWIFT: `--model`
+and `--dataset` ids resolve there unless `--use_hf true` switches to Hugging
+Face. Weights cache under `MODELSCOPE_CACHE`.
+
+Platform services relevant to training:
+
+- **Model hub** — the registered model families ship with ModelScope ids;
+  day-0 support means new models are trainable as soon as they land.
+- **Notebook / compute** — hosted GPU environments for running the examples
+  without local hardware (see the community resources in the ms-swift README).
+- **Studio deployment** — serving deployed models; account and billing
+  operations live on the platform, not in this documentation.
+
+Links: [modelscope.cn](https://modelscope.cn) ·
+[ms-swift README](https://github.com/modelscope/ms-swift#readme).

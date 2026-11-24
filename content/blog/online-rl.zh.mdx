@@ -1,0 +1,23 @@
+---
+title: 在线学习
+description: rollout、奖励，以及 GRPO 为什么不需要 critic。
+---
+
+在线 RL 闭合了 SFT 留开的环：模型生成，世界打分，模型更新。三个部件承担全部设计：
+
+**Rollout。** 快速推理引擎（vLLM）从*当前*策略采样 completion。每轮 rollout
+前把训练权重同步进引擎——否则采样器会偏离被训练的策略。放置要么 colocate
+（采样器与训练器共卡，阶段间睡眠），要么 disaggregate（各占一组卡）。
+
+**奖励。** completion 到标量的函数：精确匹配准确率、单元测试、奖励模型或插件。
+策略会精确优化这个函数，所以它的失败模式会变成策略的失败模式。
+
+**Advantage。** GRPO 的技巧：每个 prompt 采一*组* completion，用组统计量做
+基线——`(r - mean(group)) / std(group)`。critic 网络要学的就是这个基线；
+组免费给出。更新随后是该 advantage 上的 PPO 式裁剪代理目标，可选对冻结参考
+的 KL 惩罚。
+
+读一次训练：看 **reward**，不看 loss。策略梯度 loss 天然在零附近震荡；
+`train/total_reward` 上升才是信号。reward 恒零通常是任务对当前策略太难、
+completion 在答案前被截断、或评分器提取不出答案——先查这三项，
+再下「学不动」的结论。

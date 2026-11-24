@@ -1,0 +1,21 @@
+---
+title: 有监督微调
+description: SFT 的 loss 在训什么，如何诚实地读曲线。
+---
+
+SFT 最大化示范 token 的似然。两个推论决定其余一切：
+
+1. **只有掩码内的 token 承载 loss。** 对话格式数据里模板掩掉 prompt；
+   模型训的是回复，不是你的指令。预训练（`swift pt`）去掉掩码——每个 token 都训。
+2. **曲线反映提升空间，不是努力程度。** 已 instruct 的模型在通用助手数据上
+   微调，没剩多少可学：loss 从 ~1.8 降到 ~1.6 就平台。这是正确的 run，不是坏 run。
+   在新知识（如 self-cognition）上同样配置会 2.6 → 0.3。
+
+读一次训练：
+
+- loss 下降 + grad_norm 有限且收敛 → 健康；
+- 通用数据上 loss 平 → 预期内；换有真实提升空间的数据集验证管线；
+- bf16 下 loss NaN → 先查 attention 内核（钉 `--attn_impl flash_attention_2`）；
+- eval loss 与 train loss 背离 → 过拟合；减 epoch 或加数据。
+
+LoRA 与全参是容量/成本档位，不是不同算法：loss、数据契约、曲线语义完全一致。

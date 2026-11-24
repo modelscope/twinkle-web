@@ -1,0 +1,31 @@
+---
+title: WebUI 快速启动
+description: 从源码安装 ms-webui 并启动工作台。
+---
+
+## 前置
+
+- Node.js >= 20
+- WebUI 将驱动的 Python 环境里有可用的 SWIFT v5 安装（ms-swift 源码
+  `pip install -e .`；启动器门禁 ms-swift >= 5.0，开发版放行）。
+
+## 安装与启动（源码）
+
+```bash
+git clone https://github.com/modelscope/ms-webui.git
+cd ms-webui/webui
+npm install
+npm run dev
+```
+
+启动器先检查被驱动的 Python 环境，再起 Vite server（默认端口 5173，
+被占则顺延——读打印的 `Local:` URL）。`PORT=5180 npm run dev` 钉端口。
+
+后端（训练/评测/部署执行器、模型注册、OpenAI 兼容代理）住在 dev-server
+中间件里：启动 WebUI 就是启动这个 server，没有独立后端进程要管理。
+
+## 第一步
+
+1. 打开打印的 URL；对话页可与 Models 里注册的任意模型对话。
+2. 注册本地或 hub 模型，从 Train 页发起 LoRA SFT。
+3. 实时看 loss/grad_norm；checkpoint 落在 run 的输出目录。

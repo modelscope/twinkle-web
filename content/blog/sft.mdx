@@ -1,0 +1,27 @@
+---
+title: Supervised Fine-Tuning
+description: What the SFT loss trains, and how to read the curve honestly.
+---
+
+SFT maximizes the likelihood of the demonstration tokens. Two consequences
+shape everything else:
+
+1. **Only masked-in tokens carry loss.** In chat-format data the template masks
+   the prompt; the model is trained on responses, not on your instructions.
+   Pre-training (`swift pt`) removes the mask — every token trains.
+2. **The curve reflects headroom, not effort.** An already-instruct model fine-
+   tuned on general assistant data has little left to learn: loss falls from
+   ~1.8 to ~1.6 and plateaus. That is a correct run, not a broken one. On new
+   knowledge (e.g. self-cognition) the same setup falls 2.6 → 0.3.
+
+Reading a run:
+
+- loss down + grad_norm finite and shrinking → healthy;
+- loss flat on general data → expected; switch to a dataset with real headroom
+  to verify the pipeline;
+- loss NaN in bf16 → check the attention kernel first (pin
+  `--attn_impl flash_attention_2`);
+- eval loss diverging from train loss → overfitting; cut epochs or add data.
+
+LoRA vs full-parameter is a capacity/cost dial, not a different algorithm: the
+loss, the data contract and the curve semantics are identical.

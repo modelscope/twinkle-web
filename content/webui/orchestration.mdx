@@ -1,0 +1,23 @@
+---
+title: Orchestration
+description: The drag-and-drop canvas composes the same components the code API uses.
+---
+
+The Workflow page is a canvas over the SWIFT/twinkle component surface:
+models, datasets, samplers, losses, rewards and training steps are nodes;
+edges carry typed data between them.
+
+Design facts that keep it honest:
+
+- **Nodes are the real components.** A canvas node maps to the same registered
+  component the Python API uses — not a UI-only approximation. What you wire
+  is what runs.
+- **Light glue in the UI, control flow in components.** Code blocks on the
+  canvas carry small adapters; algorithm logic stays in registered components.
+- **Typed ports.** Connections are validated against data types, so an invalid
+  wiring is rejected at edit time instead of failing mid-run.
+- **Presets.** Common recipes (SFT, GRPO, embedding training) ship as starting
+  canvases you can modify rather than draw from scratch.
+
+The canvas generates the same configuration a form or script would produce;
+you can export the equivalent command and run it headless.

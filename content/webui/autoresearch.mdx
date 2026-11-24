@@ -1,0 +1,24 @@
+---
+title: AutoResearch
+description: One instruction drives a whole experiment loop.
+---
+
+AutoResearch (the Research page) automates the experiment loop around a
+training question: propose a configuration, launch the run, collect metrics,
+compare against the baseline, iterate.
+
+What it composes:
+
+- the same Train executors the manual pages use (no second training path);
+- the model registry for candidate selection;
+- Eval for outcome measurement;
+- a session record per experiment, so a result always traces to the exact
+  configuration that produced it.
+
+Use it when the question is "which configuration works", not "run this one
+configuration". For a single known run, the Train page is simpler and gives
+you the same artifacts.
+
+Results and leaderboard entries for AutoResearch runs are published on the
+[Tests & Leaderboard](./benchmarks.mdx) page once measured; nothing is listed before
+it has been run.

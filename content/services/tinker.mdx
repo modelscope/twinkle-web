@@ -1,0 +1,30 @@
+---
+title: Tinker-style Remote Training
+description: Training as an API — SWIFT's remote mode and twinkle-server.
+---
+
+Tinker popularized a simple contract: the client sends training requests
+(forward/backward, optimizer steps, sampling) to a service that owns the GPUs;
+the client never loads model weights. SWIFT's `--mode remote` implements the
+same shape against a twinkle-server:
+
+```bash
+swift sft \
+    --mode remote \
+    --server_base_url https://your-twinkle-server.example \
+    --model Qwen/Qwen3.5-4B \
+    --tuner lora --dataset 'swift/self-cognition#600' \
+    --output_dir output
+```
+
+- The local process is a single-process driver: no torchrun, no local device
+  mesh, no weights on the client.
+- `--model` names the **server-side served model id**, not a local path.
+- Checkpoints are saved server-side and returned as references; the client
+  decides what to export or push.
+- The same recipe runs locally (`--mode local`/`ray`) or remotely — the
+  training semantics do not change with placement.
+
+Deploy your own endpoint with twinkle-server (see the
+[twinkle reference](../../docs/5.0.0.dev/twinkle)), or point at a hosted
+service that speaks the same contract.

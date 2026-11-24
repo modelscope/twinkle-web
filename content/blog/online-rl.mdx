@@ -1,0 +1,29 @@
+---
+title: Online RL
+description: Rollouts, rewards, and why GRPO needs no critic.
+---
+
+Online RL closes a loop that SFT leaves open: the model generates, the world
+scores, the model updates. Three pieces carry the whole design:
+
+**Rollout.** A fast inference engine (vLLM) samples completions from the
+*current* policy. Training weights are synced into the engine before every
+rollout round — otherwise the sampler drifts from the policy being trained.
+Placement is either colocate (sampler and trainer share GPUs, sleeping between
+phases) or disaggregate (each owns a GPU group).
+
+**Reward.** A function from completion to scalar: exact-match accuracy, unit
+tests, a reward model, or a plugin. The policy will optimize exactly this
+function, so its failure modes become the policy's failure modes.
+
+**Advantage.** GRPO's trick: sample a *group* of completions per prompt and use
+the group statistics as the baseline — `(r - mean(group)) / std(group)`. A
+critic network would learn that baseline; the group gives it for free. The
+update is then a PPO-style clipped surrogate on that advantage, optionally with
+a KL penalty to a frozen reference.
+
+Reading a run: watch **reward**, not loss. The policy-gradient loss oscillates
+around zero by construction; `train/total_reward` climbing is the signal.
+Flat reward at zero usually means the task is too hard for the current policy,
+the completion is truncated before the answer, or the scorer cannot extract the
+answer — check those three before concluding "no learning".

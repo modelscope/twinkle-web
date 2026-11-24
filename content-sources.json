@@ -1,0 +1,20 @@
+{
+  "comment": "Locked content baselines. CI checks these commits out into .sources/. Update explicitly when content changes; never follow a moving branch.",
+  "sources": {
+    "swift": {
+      "repo": "https://github.com/modelscope/ms-swift.git",
+      "branch": "wip/two-review-fixes-20261123",
+      "commit": "82fef48b253369db9db2387a8391cacdf817278f"
+    },
+    "twinkle": {
+      "repo": "https://github.com/modelscope/twinkle.git",
+      "branch": "wip/two-review-fixes-20261123",
+      "commit": "9dae74cd87fb86b5a87251fa1e3f88dde48d1532"
+    },
+    "regression": {
+      "repo": "https://github.com/tastelikefeet/swift5-regression-exps.git",
+      "branch": "main",
+      "commit": "b0767071580b01eeeb682567e80dff3d7ebde84a"
+    }
+  }
+}

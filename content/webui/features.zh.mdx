@@ -1,0 +1,21 @@
+---
+title: WebUI 功能
+description: 工作台每个页面做什么。
+---
+
+| 页面 | 用途 |
+|---|---|
+| Chat | 模型对话：流式、工具调用、按模型分会话 |
+| Models | 注册本地/hub 模型；注册表供其他所有页面消费 |
+| Train | 表单或代码发起 SFT/RL；实时 loss/grad_norm、checkpoint |
+| Workflow | 拖拽画布组合训练组件（见[编排](./orchestration.mdx)） |
+| Research | AutoResearch 实验自动化（见 [AutoResearch](./autoresearch.mdx)） |
+| Eval | EvalScope 评测 |
+| Deploy | 注册模型的服务化生命周期 |
+| Export | checkpoint 导出 / 合并 / 推送 |
+| Plugins | loss/reward/数据集/模板插件管理 |
+| Scripts | 以 examples 树为底的可运行脚本库 |
+| Settings | 外观（浅/深/跟随系统）、语言（中文/English）、环境 |
+
+UI 做的一切映射到同一套 SWIFT CLI/config 面——表单发起的 run 与你手写
+shell 脚本的 run 是同一个 run，UI 会展示等价命令。

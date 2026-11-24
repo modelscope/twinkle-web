@@ -1,150 +1,90 @@
 name: Build
 
-env:
-  NODE_VERSION: '20'
-
 on:
-  # Standalone trigger for PR validation
   pull_request:
     branches: ['main']
-  # Reusable workflow trigger - called by deploy.yml
   workflow_call:
     outputs:
       artifact-id:
-        description: 'The ID of the uploaded artifact'
+        description: 'The ID of the uploaded Pages artifact'
         value: ${{ jobs.build.outputs.artifact-id }}
-  # Allow manual trigger for testing
   workflow_dispatch:
 
-# Read-only permissions for security
 permissions:
   contents: read
 
-# Prevent duplicate builds for the same PR
 concurrency:
   group: build-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
   build:
-    if: github.repository_owner != 'HugoBlox'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     outputs:
       artifact-id: ${{ steps.upload.outputs.artifact-id }}
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        # Fetch history for Hugo's .GitInfo and .Lastmod
-        fetch-depth: 0
+      - name: Checkout site
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v6
-      with:
-        node-version: ${{ env.NODE_VERSION }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
 
-    - name: Setup pnpm
-      if: hashFiles('package.json') != ''
-      uses: pnpm/action-setup@v4
+      # Content sources are locked in content-sources.json; CI checks out the
+      # exact commits (never a moving branch) into .sources/.
+      - name: Read locked sources
+        id: sources
+        run: |
+          python3 - <<'EOF'
+          import json, os
+          m = json.load(open('content-sources.json'))['sources']
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              for name, spec in m.items():
+                  f.write(f'{name}_repo={spec["repo"]}\n')
+                  f.write(f'{name}_commit={spec["commit"]}\n')
+          EOF
 
-    - name: Get Hugo Version
-      id: hugo-version
-      run: |
-        # Install pinned yq version for robust YAML parsing
-        YQ_VERSION="v4.44.1"
-        if ! wget -q --tries=3 --waitretry=1 -O /tmp/yq \
-          "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64"; then
-          echo "::error::Failed to download yq"
-          exit 1
-        fi
-        sudo mv /tmp/yq /usr/local/bin/yq
-        sudo chmod +x /usr/local/bin/yq
-        
-        # Read hugo_version from hugoblox.yaml (nested under build.hugo_version)
-        VERSION=$(yq '.build.hugo_version // ""' hugoblox.yaml 2>/dev/null | grep -v '^null$' || true)
-        
-        # Fallback to a known stable version if not specified
-        DEFAULT_VERSION="0.154.5"
-        VERSION=${VERSION:-$DEFAULT_VERSION}
-        
-        # Validate version format (basic check)
-        if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-          echo "::warning::Invalid hugo_version format '$VERSION', using default $DEFAULT_VERSION"
-          VERSION="$DEFAULT_VERSION"
-        fi
-        
-        echo "HUGO_VERSION=$VERSION" >> $GITHUB_ENV
-        echo "Using Hugo version: $VERSION"
+      - name: Checkout ms-swift (docs v5 + assets)
+        uses: actions/checkout@v4
+        with:
+          repository: modelscope/ms-swift
+          ref: ${{ steps.sources.outputs.swift_commit }}
+          path: .sources/swift
+          fetch-depth: 1
 
-    - name: Checkout twinkle docs
-      uses: actions/checkout@v4
-      with:
-        repository: modelscope/twinkle
-        path: twinkle
-        sparse-checkout: docs/
-        sparse-checkout-cone-mode: true
+      - name: Checkout twinkle (component reference docs)
+        uses: actions/checkout@v4
+        with:
+          repository: modelscope/twinkle
+          ref: ${{ steps.sources.outputs.twinkle_commit }}
+          path: .sources/twinkle
+          fetch-depth: 1
 
-    - name: Install dependencies
-      run: |
-        # Install Tailwind CLI if package.json exists
-        if [ -f "package.json" ]; then
-          echo "Installing Tailwind dependencies..."
-          pnpm install --no-frozen-lockfile || npm install
-        fi
+      - name: Checkout regression results (perf data)
+        uses: actions/checkout@v4
+        with:
+          repository: tastelikefeet/swift5-regression-exps
+          ref: ${{ steps.sources.outputs.regression_commit }}
+          path: .sources/regression
+          fetch-depth: 1
+          token: ${{ secrets.CONTENT_REPO_TOKEN || github.token }}
 
-    - name: Setup Hugo
-      uses: peaceiris/actions-hugo@v3
-      with:
-        hugo-version: ${{ env.HUGO_VERSION }}
-        extended: true
+      - name: Install dependencies
+        run: npm ci
 
-    # Cache dependencies (Go modules, node_modules) - stable, rarely changes
-    - uses: actions/cache@v4
-      with:
-        path: |
-          /tmp/hugo_cache_runner/
-          node_modules/
-          modules/*/node_modules/
-        key: ${{ runner.os }}-hugo-deps-${{ hashFiles('**/go.mod', '**/package-lock.json',
-          '**/pnpm-lock.yaml') }}
-        restore-keys: |
-          ${{ runner.os }}-hugo-deps-
+      - name: Prepare content
+        run: python3 scripts/prepare-content.py
 
-    # Cache Hugo resources (processed images, CSS) - invalidates only when assets/config change
-    - uses: actions/cache@v4
-      with:
-        path: resources/
-        key: ${{ runner.os }}-hugo-resources-${{ hashFiles('assets/**/*', 'config/**/*',
-          'hugo.yaml', 'package.json') }}
-        restore-keys: |
-          ${{ runner.os }}-hugo-resources-
+      - name: Build static site
+        env:
+          SITE_BASE_PATH: /twinkle-web
+        run: npx next build
 
-    - name: Sync docs from twinkle repo
-      env:
-        TWINKLE_DOCS_DIR: ${{ github.workspace }}/twinkle/docs
-      run: python3 scripts/sync-docs.py
-
-    - name: Check internal links
-      run: python3 scripts/check-links.py
-
-    - name: Build with Hugo
-      env:
-        HUGO_ENVIRONMENT: production
-        HUGO_BLOX_LICENSE: ${{ secrets.HUGO_BLOX_LICENSE }}
-      run: |
-        echo "Hugo Cache Dir: $(hugo config | grep cachedir)"
-        hugo --minify
-
-    - name: Generate Pagefind search index (if applicable)
-      run: |
-        # Check if site uses Pagefind search
-        if [ -f "package.json" ] && grep -q "pagefind" package.json; then
-          pnpm run pagefind || npx pagefind --site "public"
-        fi
-
-    - name: Upload artifact
-      id: upload
-      uses: actions/upload-pages-artifact@v4
-      with:
-        path: ./public
+      - name: Upload Pages artifact
+        id: upload
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ./out

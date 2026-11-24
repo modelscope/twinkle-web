@@ -1,0 +1,28 @@
+---
+title: Offline Distillation
+description: Knowledge transfer through data — and when to go on-policy.
+---
+
+Offline distillation is SFT on a teacher's outputs. The mechanism is worth
+stating plainly: the student never sees the teacher's logits or weights; it
+fits the *behavior* the teacher produced. That makes it cheap (no teacher in
+the training loop) and robust (no distribution mismatch machinery), at the
+price of an upper bound — the student learns what the teacher wrote, not
+everything the teacher knows.
+
+Pipeline:
+
+1. Fix a prompt set covering the target capability.
+2. Generate teacher responses (`swift infer` against the teacher, or any
+   serving endpoint); keep them in messages format.
+3. SFT the student on that jsonl. Filter aggressively: wrong teacher answers
+   become wrong student behavior.
+
+Go **on-policy** (GKD/OPSD in SWIFT) when the student's own mistakes matter:
+the student samples, the teacher scores or provides logits on *those* samples,
+and training corrects the student's actual distribution. That requires
+rollouts, so it lives in the RL infrastructure — more expensive, tighter
+transfer.
+
+Decision rule: fixed prompts + much stronger teacher → offline; the student
+must improve on its own failure modes → on-policy.

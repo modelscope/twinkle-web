@@ -1,21 +1,31 @@
 {
-  "name": "twinkle-web",
-  "version": "1.0.0",
+  "name": "swift-site",
+  "version": "5.0.0",
   "private": true,
-  "packageManager": "pnpm@10.14.0",
-  "description": "Twinkle technical blog and documentation site powered by Hugo Blox",
+  "description": "SWIFT + twinkle joint documentation site (static, GitHub Pages)",
   "scripts": {
-    "sync-docs": "python3 scripts/sync-docs.py",
-    "dev": "python3 scripts/sync-docs.py && hugo server --disableFastRender",
-    "build": "python3 scripts/sync-docs.py && hugo --minify && pnpm run pagefind",
-    "pagefind": "pagefind --site public"
+    "prepare-content": "python3 scripts/prepare-content.py",
+    "dev": "python3 scripts/prepare-content.py && next dev",
+    "build": "python3 scripts/prepare-content.py && next build",
+    "start": "npx serve out"
   },
   "dependencies": {
-    "@tailwindcss/cli": "^4.1.12",
-    "@tailwindcss/typography": "^0.5.10",
-    "hugo": "^0.0.3",
-    "pagefind": "^1.4.0",
-    "preact": "^10.27.2",
-    "tailwindcss": "^4.1.12"
+    "@tailwindcss/postcss": "^4.3.5",
+    "clsx": "^2.1.1",
+    "fumadocs-core": "^16.19.7",
+    "fumadocs-mdx": "^15.6.4",
+    "fumadocs-ui": "^16.19.7",
+    "lucide-react": "^1.79.0",
+    "next": "^16.4.6",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "tailwindcss": "^4.3.5"
+  },
+  "devDependencies": {
+    "@types/mdx": "^2.0.14",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "typescript": "^7.0.2"
   }
 }

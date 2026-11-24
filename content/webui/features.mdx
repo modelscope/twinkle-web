@@ -1,0 +1,22 @@
+---
+title: WebUI Features
+description: What each page of the workbench does.
+---
+
+| Page | Purpose |
+|---|---|
+| Chat | model conversation with streaming, tool calls and per-model sessions |
+| Models | register local/hub models; the registry feeds every other page |
+| Train | launch SFT/RL runs from forms or code; live loss/grad_norm, checkpoints |
+| Workflow | drag-and-drop canvas composing training components (see [Orchestration](./orchestration.mdx)) |
+| Research | AutoResearch experiment automation (see [AutoResearch](./autoresearch.mdx)) |
+| Eval | EvalScope-backed evaluation runs |
+| Deploy | serving lifecycle for registered models |
+| Export | checkpoint export / merge / push |
+| Plugins | loss/reward/dataset/template plugin management |
+| Scripts | runnable script library backed by the examples tree |
+| Settings | appearance (light/dark/system), language (中文/English), environment |
+
+Everything the UI does maps to the same SWIFT CLI/config surface — a run
+launched from a form is the same run you could write as a shell script, and
+the UI shows you the equivalent command.

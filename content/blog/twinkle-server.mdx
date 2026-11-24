@@ -1,0 +1,26 @@
+---
+title: twinkle-server Design
+description: Multi-tenant training and inference behind one gateway.
+---
+
+twinkle-server turns training and inference components into long-lived services:
+a gateway routes requests to *apps* (a model app, a sampler app, a processor
+app), each owning its engines and GPU placement.
+
+Design points that matter to users:
+
+- **Multi-tenancy via named LoRA slots.** One base model serves many adapters;
+  clients train or sample against a named slot without touching the base
+  weights. Slot lifecycle (attach / train / save / detach) is explicit.
+- **Training as an API.** A client constructs a training run over HTTP; the
+  heavy processes live server-side. This is exactly what SWIFT's
+  `--mode remote` drives: the local process keeps only the driver logic.
+- **Checkpoints as URIs.** Saved adapters come back as `twinkle://` references
+  that a sampler can consume directly — no manual weight shuttling.
+- **Mechanism stays server-side.** Ray heads, device meshes and weight-sync
+  channels are the server's business; clients speak requests and receive
+  results. The same component code runs locally or served.
+
+Operational notes: give each deployment its own namespace and ports; release
+engines when a run ends; size `gpu_memory_utilization` for the *served* model,
+not the client's laptop.
