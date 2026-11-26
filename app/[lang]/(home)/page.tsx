@@ -91,7 +91,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
     { kind: 'methods', icon: Layers, label: 'TRAINING & ALIGNMENT', title: zh ? '从预训练，到对齐。' : 'Pre-train. Fine-tune. Align.',
       body: zh ? '预训练、SFT、偏好对齐、在线 RL 与蒸馏，统一训练体系；覆盖 Agentic 与多种任务头。'
         : 'Pre-training, SFT, preference alignment, online RL and distillation in one stack. Agentic workflows included.',
-      href: `${docs}alignment/`, tags: ['PT', 'SFT', 'DPO', 'GRPO', 'GKD', 'Agentic'] },
+      href: `${docs}get-started/quick-start/`, tags: ['PT', 'SFT', 'DPO', 'GRPO', 'GKD', 'Agentic'] },
     { kind: 'hardware', icon: Cpu, label: 'HARDWARE FLEXIBILITY', title: zh ? '让硬件，为你所用。' : 'Your hardware. Your choice.',
       body: zh ? '支持 NVIDIA GPU 与昇腾 NPU，结合多种训练后端与并行方式，适配你的计算环境。'
         : 'NVIDIA GPUs and Ascend NPUs. Multiple training backends and parallelism options for your compute environment.',
@@ -99,7 +99,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
     { kind: 'custom', icon: Terminal, label: 'OWN YOUR TRAINING LOOP', title: zh ? '每一步，都由你掌控。' : 'Every step. In your hands.',
       body: zh ? '命令行开箱即用，Config 与代码 API 灵活组合。自定义 loss、reward、数据与模板，不必重写训练栈。'
         : 'Start with the CLI. Compose with Config and code APIs. Customize loss, reward, data and templates without rebuilding the stack.',
-      href: `${docs}interfaces/code-api/`, tags: ['CLI', 'Config', 'Code API', 'Plugins'] },
+      href: `${docs}interfaces/mp-separation/`, tags: ['CLI', 'Config', 'Code API', 'Plugins'] },
     { kind: 'remote', icon: Network, label: 'LOCAL CODE · REMOTE COMPUTE', title: zh ? '代码在手边。算力无边界。' : 'Local code. Remote compute.',
       body: zh ? '用 --mode remote 连接 twinkle-server，将训练放到远端。驱动逻辑留在本地，算力按任务部署。'
         : 'Connect to twinkle-server with --mode remote. Keep your driver local and place training where the compute lives.',

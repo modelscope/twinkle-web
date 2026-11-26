@@ -1,13 +1,52 @@
 ---
-title: Tests & Leaderboard
-description: AutoResearch evaluation status — measured results only.
+title: AutoResearch Benchmarks
+description: Research evaluation protocols, budgets, metrics and result admission rules.
 ---
 
-This page will carry AutoResearch experiment results: task, configuration,
-metric, and the run record behind each number.
+AutoResearch evaluates improving a model under a stated objective and budget, not merely individual training speed. A research agent selects data and methods, launches experiments, reads metrics and iterates. Independent evaluation validates the final result.
 
-**Status: no results published yet.** Entries appear here only after the
-corresponding experiments have been executed and their records verified.
-Training-throughput benchmarks of the framework itself live on the
-[Performance](../../performance) page — they measure a different thing and are
-not interchangeable with experiment outcomes.
+No measured AutoResearch leaderboard is available in this release, so no scores or rankings are shown. The v4 / v5 / remote training regression on [Performance](/en/performance) measures something different and cannot replace research quality.
+
+## Evaluation flow
+
+```text
+Fixed task / budget → agent experiments → training / validation → iteration
+                                                                  ↓
+                            Frozen checkpoint → held-out evaluation → admission
+```
+
+Define the baseline, capability, data licenses, training set, visible validation set, final held-out set and stopping rules before each study. The [AutoResearch skill](https://github.com/modelscope/twinkle/blob/main/src/twinkle_client/skills/bundled/autoresearch.md) describes a workflow, not completed benchmark results.
+
+## Datasets and leakage prevention
+
+| Capability | Evaluation choices | Required controls |
+|---|---|---|
+| Mathematics | GSM8K, MATH or task-specific problems | Revision, split, grader, extraction and sample count |
+| Coding | HumanEval or task-specific tests | Test version, isolated environment, timeout and pass@k definition |
+| General / domain tasks | Fixed classification, QA or instruction sets | Rubric, judge version or exact-match rules |
+| Tools / agents | Executable environment tasks | Image, permissions, success criteria and turn limits |
+
+These are selection rules, not claims of measured results on those datasets. Do not provide final-test answers or per-item feedback to the research agent. Deduplicate training data against evaluation prompts and disclose possible public-data pretraining contamination.
+
+## Budgets and controls
+
+Publish actual GPU type / count, GPU hours, wall-clock limit, API tokens or cost, attempt limit, data-generation cost and final evaluation cost. Failed and terminated experiments count toward the budget, not only the best run.
+
+Pin the agent model, system message, skill refs, tools, starting model revision, seed and sampling parameters. Comparisons use identical allowed resources and data access. Record human interventions separately from fully automatic runs. Paid resources, long training and external writes need appropriate authorization.
+
+Numerical budgets and concrete task lists will accompany the first measured batch; no unmeasured universal budget is prescribed here.
+
+## Metrics
+
+- **Outcome:** final held-out score and change from baseline, with repeated-run counts and variation.
+- **Efficiency:** time to target, total cost, attempts and valid-experiment fraction.
+- **Reliability:** completion rate, failure types, budget overruns and human interventions.
+- **Reproducibility:** complete final code, configuration, checkpoint, history and environment records.
+
+Training loss, reward and UI curves are feedback, not final evaluation scores. Accuracy, pass@k and judge scores retain their definitions rather than being merged into an unexplained aggregate.
+
+## Admission
+
+Submissions include task specifications, evaluation versions, budgets, baseline / final checkpoints, complete logs, configurations and seeds. Admit only completed held-out evaluations with auditable budgets and sources. Missing results remain unpublished, not zero or estimated ranks.
+
+Separate results with different resources, human participation or data access. Preserve prior versions and update reasons, and retain failed runs alongside successful ones. See [Features](./features.mdx) for research sessions and task monitoring.

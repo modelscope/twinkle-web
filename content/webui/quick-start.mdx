@@ -1,16 +1,23 @@
 ---
 title: WebUI Quick Start
-description: Install ms-webui from source and launch the workbench.
+description: Install ms-webui, create a training task, and inspect logs, metrics and artifacts.
 ---
 
-## Prerequisites
+ms-webui is the SWIFT and twinkle web workspace. One program serves the UI and task APIs. Training runs on the WebUI host or a configured remote service, not inside the browser.
 
-- Node.js >= 20
-- A working SWIFT v5 installation in the Python environment the WebUI will
-  drive (`pip install -e .` from the ms-swift source; the launcher gates on
-  ms-swift >= 5.0 and accepts development versions).
+## Install and launch
 
-## Install & launch (source)
+Install SWIFT in the Python environment used for task execution. NVIDIA examples additionally need matching PyTorch / CUDA and FlashAttention 2; see [Installation](/en/docs/5.0.0.dev/get-started/installation).
+
+```bash
+pip install 'ms-swift>=5.0.0'
+npm install -g @modelscope/ms-webui
+ms-webui
+```
+
+The launcher checks `ms-swift >= 5.0` before printing its URL. Open that address; no separate backend is required. WebUI and the `swift` command should use the same Python environment.
+
+Source launch requires Node.js 18 or later:
 
 ```bash
 git clone https://github.com/modelscope/ms-webui.git
@@ -19,17 +26,28 @@ npm install
 npm run dev
 ```
 
-The launcher first checks the driven Python environment, then starts the Vite
-server (default port 5173; it moves to the next free port if occupied — read
-the printed `Local:` URL). Pin a port with `PORT=5180 npm run dev`.
+The development server serves both API and pages. Protect a workspace capable of executing tasks with a trusted network entry point, keeping credentials and host files private.
 
-The backend (training/eval/deploy executors, model registry, OpenAI-compatible
-proxy) lives in the dev-server middleware: starting the WebUI means starting
-that server. There is no separate backend process to manage.
+## First training task
 
-## First steps
+1. Create a training task, selecting `Qwen/Qwen3.5-4B` and LoRA.
+2. Use `swift/self-cognition#600`, BF16, `flash_attention_2`, length 2048, learning rate `1e-4` and 3 epochs. Start with per-device batch 1 and accumulation 8, adjusting for hardware.
+3. Confirm the environment, available GPUs and output directory. Memory estimates support planning, not guaranteed allocation or OOM avoidance.
+4. Submit and open task details to inspect the command, live logs and loss / lr curves.
+5. After completion, inspect checkpoints and load the adapter with the same model and template for inference or deployment.
 
-1. Open the printed URL; the chat page talks to any model registered under
-   Models.
-2. Register a local or hub model, then launch a LoRA SFT from the Train page.
-3. Watch loss/grad_norm live; checkpoints appear in the run's output directory.
+The matching copyable command is in [Quick Start](/en/docs/5.0.0.dev/get-started/quick-start). WebUI uses existing SWIFT parameter semantics.
+
+## Manage tasks
+
+The task list retains history; details expose logs, metrics and artifacts. Closing a browser does not stop tasks. Stopping is explicit, and exiting WebUI does not necessarily stop external task processes. Inspect actual task state after restarting.
+
+State is derived from files under `SWIFT_WEBUI_HOME`, defaulting to `~/.swift/webui`. A task's `run.sh` can be replayed without the UI. Check devices, paths and credentials before replaying to avoid overwrites or duplicate service processes.
+
+## Models and chat
+
+Configure a real API endpoint or ready local deployment. A deployment task starts `swift deploy`; its ready endpoint can then be selected in chat. A model name alone does not provision compute: API models need an endpoint, ID and valid credentials.
+
+Agent tools have session-level approval controls. Confirm tool permissions, file scope and budget before authorizing training or scripts. See [Server and Client](/en/docs/5.0.0.dev/interfaces/server-client) for remote training setup.
+
+Continue with [Features](./features.mdx) and [Benchmarks](./benchmarks.mdx). See the [ms-webui README](https://github.com/modelscope/ms-webui#readme) for the source and launcher.

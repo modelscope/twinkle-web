@@ -1,18 +1,76 @@
 ---
 title: ModelScope 服务
-description: 本体系对接的模型库与算力平台。
+description: 模型 Hub、托管 twinkle 训练服务与 API 推理的接入条件和使用流程。
 ---
 
-[ModelScope](https://modelscope.cn) 是 SWIFT 的默认 hub：`--model` 与
-`--dataset` 的 id 默认在此解析，`--use_hf true` 切 Hugging Face。
-权重缓存在 `MODELSCOPE_CACHE`。
+[ModelScope](https://www.modelscope.cn/) 提供模型与数据集 Hub，以及平台算力和 API 服务。SWIFT 默认从 ModelScope 获取模型与数据；托管远程训练使用训练 API，API 推理使用生成接口，两种地址和用途不同。
 
-与训练相关的平台服务：
+## Hub 与本机训练
 
-- **模型库**——注册模型族带 ModelScope id；Day-0 支持意味着新模型落地即可训。
-- **Notebook / 算力**——托管 GPU 环境，无本地硬件也能跑示例
-  （见 ms-swift README 的社区资源）。
-- **Studio 部署**——模型服务化；账户与计费操作在平台上，不在本文档站。
+```bash
+swift sft --model Qwen/Qwen3.5-4B \
+    --attn_impl flash_attention_2 \
+    --dataset 'swift/self-cognition#600' \
+    --tuner lora \
+    --output_dir output/modelscope
+```
 
-链接：[modelscope.cn](https://modelscope.cn) ·
-[ms-swift README](https://github.com/modelscope/ms-swift#readme)。
+裸 ID 默认解析到 ModelScope；`--use_hf true` 切到 Hugging Face。模型缓存可由 `MODELSCOPE_CACHE` 配置。私有或受许可限制的模型需要账号授权；有权下载不代表可以忽略数据与模型许可。环境要求见[安装](/zh/docs/5.0.0.dev/get-started/installation)。
+
+## 托管 twinkle 训练服务
+
+官方 twinkle [训练即服务说明](https://github.com/modelscope/twinkle/blob/main/docs/source_en/Usage%20Guide/Train-as-a-Service.md) 使用 `https://www.modelscope.cn/twinkle` 作为训练 gateway，凭据为 ModelScope 平台 access token。先注册账号，在 [access token 页面](https://www.modelscope.cn/my/access/token) 获取并通过环境变量提供凭据，不写入示例或分享日志。
+
+服务模型、开放范围、rank、容量和额度以平台当前能力为准；不把文档中的固定模型名称当作实时可用列表。先查询：
+
+```bash
+pip install 'twinkle-kit[client]'
+```
+
+```python
+import os
+from twinkle_client import init_tinker_client
+
+
+init_tinker_client()
+from tinker import ServiceClient
+
+service = ServiceClient(
+    base_url='https://www.modelscope.cn/twinkle',
+    api_key=os.environ['MODELSCOPE_TOKEN'],
+)
+for item in service.get_server_capabilities().supported_models:
+    print(item.model_name)
+```
+
+查询成功后从返回列表选择具备训练权限的模型，再按 [Tinker 兼容流程](./tinker.mdx) 创建 LoRA training client、传入数据、更新和保存。模型不是客户端本地路径。保存返回服务端 checkpoint URI；恢复和采样使用该 URI，不能将其替换为本机输出目录。
+
+完整可改写的训练与采样例子见 [cookbook/client/tinker](https://github.com/modelscope/twinkle/tree/main/cookbook/client/tinker)。若服务未对账号开放、能力列表不含所需模型或容量不足，可自行部署[twinkle-server](/zh/docs/5.0.0.dev/interfaces/server-client)。开源接口的存在不保证任何托管账号都有无限可用算力。
+
+## API 推理
+
+ModelScope API 推理入口为 `https://api-inference.modelscope.cn/v1`，与训练 gateway 不同。WebUI 的模型配置使用该地址，通过平台 token 和已开放的模型 ID 调用；官方规则见 [API 推理说明](https://www.modelscope.cn/docs/model-service/API-Inference/intro)。
+
+```python
+import os
+from openai import OpenAI
+
+
+client = OpenAI(
+    base_url='https://api-inference.modelscope.cn/v1',
+    api_key=os.environ['MODELSCOPE_TOKEN'],
+)
+response = client.chat.completions.create(
+    model=os.environ['MODELSCOPE_INFERENCE_MODEL'],
+    messages=[{'role': 'user', 'content': '你好'}],
+)
+print(response.choices[0].message.content)
+```
+
+此例需 `pip install openai`；`MODELSCOPE_INFERENCE_MODEL` 设置为平台实际开放的模型 ID，不假定任意 Hub 模型均可通过 API 推理。该 endpoint 不提供训练 forward/backward，不能传给 `swift sft --mode remote`。
+
+## 使用前确认
+
+确认账号权限、模型许可、费用或体验额度、数据保留与隐私规则、网络访问和最大请求规模。平台调整模型与资源时，以能力查询和官方公告为准。示例没有调用服务或产生计费的授权含义；实际训练或生成前由用户确认预算。
+
+WebUI 模型设置与任务操作见[快速启动](/zh/webui/quick-start)，训练效率与回归见[性能](/zh/performance)。

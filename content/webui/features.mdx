@@ -1,22 +1,44 @@
 ---
 title: WebUI Features
-description: What each page of the workbench does.
+description: Task lifecycle, model chat, research sessions, workflows and configurable appearance.
 ---
 
-| Page | Purpose |
-|---|---|
-| Chat | model conversation with streaming, tool calls and per-model sessions |
-| Models | register local/hub models; the registry feeds every other page |
-| Train | launch SFT/RL runs from forms or code; live loss/grad_norm, checkpoints |
-| Workflow | drag-and-drop canvas composing training components (see [Orchestration](./orchestration.mdx)) |
-| Research | AutoResearch experiment automation (see [AutoResearch](./autoresearch.mdx)) |
-| Eval | EvalScope-backed evaluation runs |
-| Deploy | serving lifecycle for registered models |
-| Export | checkpoint export / merge / push |
-| Plugins | loss/reward/dataset/template plugin management |
-| Scripts | runnable script library backed by the examples tree |
-| Settings | appearance (light/dark/system), language (中文/English), environment |
+WebUI combines task configuration, run history and model chat. Pages display state, executors launch SWIFT commands or scripts, and the host stores logs and artifacts. Start with [installation and a first task](./quick-start.mdx).
 
-Everything the UI does maps to the same SWIFT CLI/config surface — a run
-launched from a form is the same run you could write as a shell script, and
-the UI shows you the equivalent command.
+## Training and task lifecycle
+
+Train, eval, export, deploy and script tasks share creation, list and detail views. Training forms offer parallel-layout planning and memory estimates. Run details expose live logs and loss / lr parsed from training records; comparison pages compare configurations across runs.
+
+Confirm the model, data, environment, devices and output before submission. Interpret failures from process exits and logs. Missing curves can mean no update yet, absent metric fields or unavailable parsed records, not necessarily failure. Retain the original command and checkpoints with historical results.
+
+Comparable evaluations need the same validation set and generation parameters. Export requires the correct base model and adapter. Deploy starts an attached `swift deploy` process and registers the ready endpoint in model settings; stopping it affects chats using that endpoint.
+
+## Model settings and Agent chat
+
+Model configuration manages API endpoints and local deployments. Chat supports streaming, parallel model comparison and tool calls. Comparisons send the same turn to multiple models; also match sampling parameters and history.
+
+Agent tools can operate tasks and files, with session-level approvals. Disabling approvals expands automatic execution: first define objectives, budget, file scope and service permissions. Model-generated tool arguments are untrusted input, not trusted system instructions.
+
+Plugins extend tools; skills explain tools and domain workflows. Build-time synchronization copies skills from ms-swift and modelscope-skills into `public/skills/`. Edit the source repositories; `SWIFT_SKILLS_REF` and `MODELSCOPE_SKILLS_REF` choose refs. See [skills](https://github.com/modelscope/ms-swift/tree/main/skills).
+
+## Research and workflows
+
+Research sessions retain objectives, tool calls and iteration conclusions, with continuation across rounds. A study can create multiple training and evaluation runs; define GPU time, attempts, API use, stopping conditions and validation sets in advance. A final score alone does not describe the whole research budget.
+
+Workflows connect training, evaluation, LoRA merge and deployment nodes. Definitions are YAML; each run has its own directory and launch-time definition snapshot. Later edits must not be presented as the configuration of an older run. Check upstream artifacts and downstream checkpoint paths, particularly version suffixes and adapter versus full-model outputs.
+
+Research-quality evaluation is covered in [Benchmarks](./benchmarks.mdx). Training speed regression is a different metric; see [Performance](/en/performance).
+
+## Files and state
+
+Task records live under `SWIFT_WEBUI_HOME`, default `~/.swift/webui`. Closing a page does not stop tasks; reopening derives the run view from files. `run.sh` supports reproduction outside the UI. Check dependencies, devices and non-overwriting paths before replaying.
+
+Before sharing logs, remove credentials, private paths and prompts. Long runs also need storage, checkpoint retention and remote connection lifecycle management.
+
+## Appearance and language
+
+The UI supports English / Chinese and light / dark modes. Settings provides independent palettes with Ice Blue, Warm Yellow, Teal, Lavender and Rose presets. Accent and background support a color picker, `#RGB` or `#RRGGBB`; Enter or blur commits valid values and Escape discards a draft.
+
+Choosing a preset clears custom colors for that palette without changing light / dark mode. Normal-mode preferences live in `~/.swift/webui-settings.json` on the host; exhibition mode uses browser-session storage. Task status colors and the dark workflow canvas remain unchanged.
+
+See the [ms-webui README](https://github.com/modelscope/ms-webui#readme) and [component architecture](/en/docs/5.0.0.dev/interfaces/mp-separation).

@@ -1,28 +1,69 @@
 ---
 title: Offline Distillation
-description: Knowledge transfer through data — and when to go on-policy.
+description: Build fixed datasets from teacher responses, train with SFT, and distinguish output from logits distillation.
 ---
 
-Offline distillation is SFT on a teacher's outputs. The mechanism is worth
-stating plainly: the student never sees the teacher's logits or weights; it
-fits the *behavior* the teacher produced. That makes it cheap (no teacher in
-the training loop) and robust (no distribution mismatch machinery), at the
-price of an upper bound — the student learns what the teacher wrote, not
-everything the teacher knows.
+Distillation transfers a teacher's behavior or output distribution to a student. Offline distillation stores teacher feedback before student training, so the teacher need not participate in every update. The common output-distillation approach uses teacher responses as SFT targets without teacher weights or logits.
 
-Pipeline:
+## Principle
 
-1. Fix a prompt set covering the target capability.
-2. Generate teacher responses (`swift infer` against the teacher, or any
-   serving endpoint); keep them in messages format.
-3. SFT the student on that jsonl. Filter aggressively: wrong teacher answers
-   become wrong student behavior.
+Output distillation increases the student's probability of teacher answers:
 
-Go **on-policy** (GKD/OPSD in SWIFT) when the student's own mistakes matter:
-the student samples, the teacher scores or provides logits on *those* samples,
-and training corrects the student's actual distribution. That requires
-rollouts, so it lives in the RL infrastructure — more expensive, tighter
-transfer.
+```text
+L = - Σ_t log p_student(y_teacher,t | prompt, y_teacher,<t)
+```
 
-Decision rule: fixed prompts + much stronger teacher → offline; the student
-must improve on its own failure modes → on-policy.
+The teacher determines the response and reasoning, and the student learns fixed sequences through teacher forcing. This transfers recorded behavior, not all teacher knowledge. Incorrect steps, redundancy and wrong final answers become targets too.
+
+Stored teacher logits can support KL-based distribution matching, but require vocabulary alignment, temperature choices, truncation and substantial storage. Text-only outputs do not contain this information. This article uses output distillation available through ordinary text-generation services.
+
+## Data flow
+
+```text
+Training prompts → teacher generation → validation / filtering → messages JSONL
+                                                                  ↓
+                                                         Student SFT → evaluation
+```
+
+1. Pin prompt sources, splits, teacher version, system messages, sampling and seeds.
+2. Save complete teacher outputs and validation results; do not expose reference answers in student prompts.
+3. Filter malformed, incomplete and invalid answers without eliminating coverage of harder tasks.
+4. Train prompt/response pairs and compare to the original student on held-out prompts.
+
+## Build the dataset
+
+Save generated teacher samples as `distill.jsonl`:
+
+```jsonl
+{"messages": [{"role": "user", "content": "Why does binary search require a sorted array?"}, {"role": "assistant", "content": "After comparing the middle element, binary search discards half the candidates. Ordering is required to infer that the target cannot be in the discarded half."}]}
+{"messages": [{"role": "user", "content": "Compute 17×23."}, {"role": "assistant", "content": "17×23 = 17×20 + 17×3 = 340 + 51 = 391."}]}
+```
+
+These rows illustrate the format, not a benchmark or measured result. Generate with `swift infer` or a configured teacher service, using an actual teacher model and retaining raw outputs. See [batch inference examples](https://github.com/modelscope/ms-swift/tree/main/examples/v5/infer). During conversion, ensure the last assistant message is the generated teacher answer rather than a reference accidentally copied from the input.
+
+## Train the student
+
+Follow [Quick Start](/en/docs/5.0.0.dev/get-started/quick-start) for installation. This student is Qwen3.5-4B:
+
+```bash
+CUDA_VISIBLE_DEVICES=0 swift sft \
+    --model Qwen/Qwen3.5-4B \
+    --torch_dtype bfloat16 \
+    --attn_impl flash_attention_2 \
+    --dataset ./distill.jsonl \
+    --tuner lora \
+    --lora_rank 8 \
+    --lora_alpha 32 \
+    --learning_rate 1e-4 \
+    --max_length 4096 \
+    --num_train_epochs 3 \
+    --output_dir output/distillation
+```
+
+Replace the format samples with sufficient real data. Check long reasoning targets for truncation and choose final-response or full-trajectory supervision intentionally. See [Custom Dataset](/en/docs/5.0.0.dev/interfaces/custom-dataset) and [Templates](/en/docs/5.0.0.dev/interfaces/template).
+
+## Evaluation and limits
+
+Lower training loss only establishes closer fit to saved teacher outputs. Report held-out task scores, valid-output rates, response length and inference costs under the same sampling settings as the original student. Record teacher-generation and student-training costs separately within the total budget.
+
+Fixed data does not automatically cover the current student's failures. GKD or OPSD can instead provide feedback on student-sampled trajectories, adding teacher and sampler computation to the loop. See [Online RL](./online-rl.mdx) and [online implementation examples](https://github.com/modelscope/ms-swift/tree/main/examples/v5/rl). Compare feedback quality, coverage and total budget rather than assuming either offline or online methods always win.

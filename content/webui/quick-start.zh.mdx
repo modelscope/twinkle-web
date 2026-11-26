@@ -1,15 +1,23 @@
 ---
 title: WebUI 快速启动
-description: 从源码安装 ms-webui 并启动工作台。
+description: 安装 ms-webui，创建首个训练任务，查看日志、指标和产物。
 ---
 
-## 前置
+ms-webui 是 SWIFT 与 twinkle 的网页工作台。界面与任务执行服务由同一程序提供，用户通过浏览器配置任务，训练在运行 WebUI 的机器或已配置的远程服务上执行。浏览器本身不执行 GPU 训练。
 
-- Node.js >= 20
-- WebUI 将驱动的 Python 环境里有可用的 SWIFT v5 安装（ms-swift 源码
-  `pip install -e .`；启动器门禁 ms-swift >= 5.0，开发版放行）。
+## 安装与启动
 
-## 安装与启动（源码）
+先在执行训练的 Python 环境安装 SWIFT。NVIDIA 示例另需匹配驱动的 PyTorch、CUDA 和 FlashAttention 2，完整要求见[安装文档](/zh/docs/5.0.0.dev/get-started/installation)。
+
+```bash
+pip install 'ms-swift>=5.0.0'
+npm install -g @modelscope/ms-webui
+ms-webui
+```
+
+启动器先确认当前 Python 环境提供 `ms-swift >= 5.0`，再打印访问地址。浏览器打开输出的 URL 即可，不需要另启动一个后端。命令行 `swift` 与 WebUI 应使用同一 Python 环境。
+
+从源码运行需要 Node.js 18 或更高版本：
 
 ```bash
 git clone https://github.com/modelscope/ms-webui.git
@@ -18,14 +26,28 @@ npm install
 npm run dev
 ```
 
-启动器先检查被驱动的 Python 环境，再起 Vite server（默认端口 5173，
-被占则顺延——读打印的 `Local:` URL）。`PORT=5180 npm run dev` 钉端口。
+开发服务器同时提供 API 与页面。不要将具备任务执行权限的工作台直接暴露给不可信网络；使用可信访问入口并保护 API 凭据和本机文件。
 
-后端（训练/评测/部署执行器、模型注册、OpenAI 兼容代理）住在 dev-server
-中间件里：启动 WebUI 就是启动这个 server，没有独立后端进程要管理。
+## 首个训练任务
 
-## 第一步
+1. 进入训练栏目，新建任务，选择模型 `Qwen/Qwen3.5-4B` 和 LoRA。
+2. 使用 `swift/self-cognition#600` 数据，设置 BF16、`flash_attention_2`、最大长度 2048、学习率 `1e-4`、3 epoch。单卡 batch 1，梯度累积 8；按实际 GPU 容量调整。
+3. 确认执行环境、可用 GPU 和输出目录。显存估算用于规划，不替代真实分配，也不保证任意序列长度下不会 OOM。
+4. 提交后打开任务详情，查看启动命令、实时日志和 loss / lr 曲线。
+5. 正常结束后查看 checkpoint 与输出目录，用相同模型和模板载入 adapter 进行推理或创建部署任务。
 
-1. 打开打印的 URL；对话页可与 Models 里注册的任意模型对话。
-2. 注册本地或 hub 模型，从 Train 页发起 LoRA SFT。
-3. 实时看 loss/grad_norm；checkpoint 落在 run 的输出目录。
+对应可复制 CLI 命令见[快速启动](/zh/docs/5.0.0.dev/get-started/quick-start)。WebUI 使用现有 SWIFT 接口，不引入另一套参数语义。
+
+## 查看与管理任务
+
+任务列表保存历史运行，详情提供日志、指标和产物信息。关闭浏览器不会终止任务。停止任务是显式操作；WebUI 程序退出也不等于所有外部任务进程已经退出，重新启动后应查看任务实际状态。
+
+任务状态来自 `SWIFT_WEBUI_HOME`（默认 `~/.swift/webui`）下的文件。任务目录里的 `run.sh` 可以脱离页面重放；重放前检查 GPU、输出路径和凭据，避免覆盖原任务或重复启动服务。
+
+## 配置模型与对话
+
+在模型配置中填写实际 API endpoint 或选择已经就绪的本地部署。部署任务启动 `swift deploy`，就绪的 endpoint 登记后可在对话页选择。API 服务需要实际模型 ID、访问地址和平台凭据，不因填写名称自动创建算力。
+
+Agent 工具调用受会话审批控制。先确认工具权限、文件范围和运行预算，再授权执行训练或脚本。远程训练服务的配置见[服务端与客户端](/zh/docs/5.0.0.dev/interfaces/server-client)。
+
+更多操作见[功能介绍](./features.mdx)，研究评测方法见[Benchmarks](./benchmarks.mdx)。源码与启动说明以 [ms-webui README](https://github.com/modelscope/ms-webui#readme) 为准。

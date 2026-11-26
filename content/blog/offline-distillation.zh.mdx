@@ -1,22 +1,69 @@
 ---
 title: 离线蒸馏
-description: 经由数据的知识转移——以及何时转 on-policy。
+description: 用教师回复构建固定数据集，通过 SFT 转移行为，并区分输出蒸馏与 logits 蒸馏。
 ---
 
-离线蒸馏就是在教师输出上做 SFT。机制值得直说：学生从不接触教师的 logits
-或权重，它拟合的是教师产出的*行为*。这让它便宜（训练循环里没有教师）、
-稳健（不需要处理分布失配的额外机制），代价是上限——学生学到教师写下的，
-不是教师知道的全部。
+知识蒸馏将教师模型的行为或输出分布转移给学生。离线蒸馏先生成并保存教师反馈，再训练学生；教师不必在每次学生更新时在线。最常见的输出蒸馏把教师回复作为 SFT 目标，不需要获得教师权重或 logits。
 
-流水线：
+## 原理
 
-1. 固定覆盖目标能力的 prompt 集。
-2. 生成教师回复（`swift infer` 打教师，或任意服务端点），存 messages 格式。
-3. 学生在该 jsonl 上 SFT。严格过滤：教师的错误答案会变成学生的错误行为。
+输出蒸馏的目标是提高学生生成教师答案的概率：
 
-当学生自己的错误重要时转 **on-policy**（SWIFT 的 GKD/OPSD）：学生采样，
-教师对*这些*样本打分或给 logits，训练纠正学生的真实分布。这需要 rollout，
-所以住在 RL 基础设施里——更贵，转移更紧。
+```text
+L = - Σ_t log p_student(y_teacher,t | prompt, y_teacher,<t)
+```
 
-决策法则：固定 prompt + 强得多的教师 → 离线；学生必须改进自己的失败模式
-→ on-policy。
+教师先决定回答和推理过程，学生在这些固定序列上做 teacher forcing。它学习的是保存下来的行为，不是教师所有知识。高质量长推理可能有帮助，但错误步骤、冗余内容和错误最终答案也会被学习。
+
+如果保存完整教师 logits，还可以最小化教师与学生分布的 KL，但需要词表对齐、温度、截断和大量存储。只有文本回复的数据集不具备这类信息，不能称为 logits 蒸馏。本篇使用可通过任意文本生成服务获得的输出蒸馏。
+
+## 数据流
+
+```text
+训练 prompt 集 → 教师生成 → 验证与过滤 → 固定 messages JSONL
+                                           ↓
+                                    学生 SFT → 独立评测
+```
+
+1. 固定 prompt 来源、数据划分、教师版本、system、采样设置和随机种子。
+2. 生成教师回复；保存完整输出和验证结果，不把参考答案放进学生可见 prompt。
+3. 过滤格式错误、不完整和验证失败的回复；保留覆盖范围，避免只留下简单题。
+4. 使用相同的 prompt/response 格式训练学生，并在隔离验证集上与未蒸馏学生比较。
+
+## 构建数据
+
+把教师生成后的两条样本保存为 `distill.jsonl`：
+
+```jsonl
+{"messages": [{"role": "user", "content": "解释二分查找为什么要求有序数组。"}, {"role": "assistant", "content": "每次比较中间元素后，二分查找会丢弃一半候选。只有数组有序，才能从比较结果推断目标不在被丢弃的那一半。"}]}
+{"messages": [{"role": "user", "content": "计算 17×23。"}, {"role": "assistant", "content": "17×23 = 17×20 + 17×3 = 340 + 51 = 391。"}]}
+```
+
+这两行说明目标格式，不代表评测集或实测结果。生成阶段可以用 `swift infer` 或已有服务，选择有教师能力的实际模型并保存原始输出。批量生成入口见 [examples/v5/infer](https://github.com/modelscope/ms-swift/tree/main/examples/v5/infer)。将生成记录转换为上述标准格式时，确认最后一条 assistant 是教师输出，而非误复制输入中的参考答案。
+
+## 学生训练
+
+安装见[快速启动](/zh/docs/5.0.0.dev/get-started/quick-start)。学生示例使用 Qwen3.5-4B：
+
+```bash
+CUDA_VISIBLE_DEVICES=0 swift sft \
+    --model Qwen/Qwen3.5-4B \
+    --torch_dtype bfloat16 \
+    --attn_impl flash_attention_2 \
+    --dataset ./distill.jsonl \
+    --tuner lora \
+    --lora_rank 8 \
+    --lora_alpha 32 \
+    --learning_rate 1e-4 \
+    --max_length 4096 \
+    --num_train_epochs 3 \
+    --output_dir output/distillation
+```
+
+使用真实的足量数据替换格式样例。长推理任务要检查目标回复是否被截断，并按需要选择只监督最后回复或保留完整教师轨迹；数据格式与 mask 见[自定义数据集](/zh/docs/5.0.0.dev/interfaces/custom-dataset)和[模板](/zh/docs/5.0.0.dev/interfaces/template)。
+
+## 评测与边界
+
+训练 loss 下降只说明学生更接近保存的教师回复。报告未见 prompt 的任务分数、有效输出比例、长度与推理成本；与原学生在相同采样设置下比较。教师生成开销和学生训练开销分开记录，避免把生成成本从总预算中隐去。
+
+离线数据不能自动覆盖学生当前容易犯的错误。若需要对学生实际采样分布提供反馈，可采用 GKD、OPSD 等在线蒸馏；教师与采样器参与训练循环，计算与调度要求也随之改变。在线数据流见[在线 RL](./online-rl.mdx)，实现示例见 [examples/v5/rl](https://github.com/modelscope/ms-swift/tree/main/examples/v5/rl)。选择方法时比较数据质量、反馈类型和总预算，不假定在线或离线必然更优。

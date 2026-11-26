@@ -1,4 +1,4 @@
 {
   "title": "WebUI",
-  "pages": ["index", "quick-start", "features", "autoresearch", "orchestration", "benchmarks"]
+  "pages": ["index", "quick-start", "features", "benchmarks"]
 }

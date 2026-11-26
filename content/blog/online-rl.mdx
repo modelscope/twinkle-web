@@ -1,29 +1,94 @@
 ---
-title: Online RL
-description: Rollouts, rewards, and why GRPO needs no critic.
+title: Online Reinforcement Learning
+description: GRPO group-relative rewards, sampling, scoring, updates and weight synchronization.
 ---
 
-Online RL closes a loop that SFT leaves open: the model generates, the world
-scores, the model updates. Three pieces carry the whole design:
+Online learning generates responses during training with the current model and updates from rewards or teacher feedback. Unlike SFT on fixed responses or DPO on fixed preferences, its training distribution changes with the model. GRPO illustrates the algorithm and execution flow; online distillation reuses sampling and training components.
 
-**Rollout.** A fast inference engine (vLLM) samples completions from the
-*current* policy. Training weights are synced into the engine before every
-rollout round — otherwise the sampler drifts from the policy being trained.
-Placement is either colocate (sampler and trainer share GPUs, sleeping between
-phases) or disaggregate (each owns a GPU group).
+## GRPO principle
 
-**Reward.** A function from completion to scalar: exact-match accuracy, unit
-tests, a reward model, or a plugin. The policy will optimize exactly this
-function, so its failure modes become the policy's failure modes.
+GRPO samples a group of responses per prompt and estimates advantages from relative rewards without an additional trained value model. A common normalization and clipped objective are:
 
-**Advantage.** GRPO's trick: sample a *group* of completions per prompt and use
-the group statistics as the baseline — `(r - mean(group)) / std(group)`. A
-critic network would learn that baseline; the group gives it for free. The
-update is then a PPO-style clipped surrogate on that advantage, optionally with
-a KL penalty to a frozen reference.
+```text
+A_i = (R_i - mean(R)) / (std(R) + δ)
+r_t = p_current(token_t | history) / p_old(token_t | history)
+objective_t = min(r_t * A_i, clip(r_t, 1-ε, 1+ε) * A_i)
+```
 
-Reading a run: watch **reward**, not loss. The policy-gradient loss oscillates
-around zero by construction; `train/total_reward` climbing is the signal.
-Flat reward at zero usually means the task is too hard for the current policy,
-the completion is truncated before the answer, or the scorer cannot extract the
-answer — check those three before concluding "no learning".
+`R` is the prompt's reward group, `δ` a numerical stability term, and `ε` the clipping parameter. An optional reference-policy KL term constrains deviation; setting `beta=0` changes the objective, not just memory use.
+
+Equal rewards produce zero group-relative advantage. More updates cannot invent a correctness signal when tasks are saturated or rewards only discriminate formatting.
+
+## Data flow and versions
+
+```text
+Prompt → sampler generates G trajectories → reward → group advantage
+       → trainer log-probabilities → backward / optimizer
+       → publish updated weights to sampler → next prompts
+```
+
+Training constructs ratios from generation-time old-policy and current-policy log-probabilities. Preserve sampler versions, response masks and prompt groups. Tool observations are context, not action tokens.
+
+SWIFT recipes own algorithm order; twinkle models, samplers, rewards, advantages and StreamingDriver own component execution and scheduling. Local online RL uses Ray. Service mode executes models and sampling through twinkle-server without client-side base weights.
+
+## A mathematical example
+
+Save as `prompts.jsonl`, expanding task count and difficulty for real training:
+
+```jsonl
+{"messages": [{"role": "user", "content": "Compute 17×23 and put the answer in \\boxed{}."}], "solution": "391"}
+{"messages": [{"role": "user", "content": "Solve 2x+3=11 and put the answer in \\boxed{}."}], "solution": "4"}
+```
+
+`solution` goes only to the reward. After installing SWIFT, install this sampler and mathematical verifier:
+
+```bash
+pip install vllm math-verify
+CUDA_VISIBLE_DEVICES=0,1 swift rl \
+    --rl_type grpo \
+    --model Qwen/Qwen3.5-4B \
+    --torch_dtype bfloat16 \
+    --attn_impl flash_attention_2 \
+    --dataset ./prompts.jsonl \
+    --mode ray \
+    --nproc_per_node 1 \
+    --rollout_sampler vllm \
+    --sampler_mode disaggregated \
+    --tuner lora \
+    --generation_batch_size 2 \
+    --num_generations 4 \
+    --orm accuracy \
+    --beta 0.04 \
+    --epsilon 0.2 \
+    --max_completion_length 512 \
+    --max_length 2048 \
+    --vllm_max_model_len 4096 \
+    --per_device_train_batch_size 1 \
+    --gradient_accumulation_steps 8 \
+    --learning_rate 1e-5 \
+    --max_steps 100 \
+    --logging_steps 1 \
+    --output_dir output/online-rl
+```
+
+One GPU trains and another samples. Prompt count and generations per prompt determine trajectory count; training micro-batches and accumulation determine update scale. These are distinct controls. `accuracy` scores `solution` using math-verify; other rewards may not require it.
+
+## Placement and asynchronous execution
+
+| Setting | Controls | Conditions |
+|---|---|---|
+| `sampler_mode=colocate` | Shared trainer / sampler GPUs | Budget or switch memory using offload / sleep |
+| `sampler_mode=disaggregated` | Separate GPUs | Reserve sampler weights and KV cache capacity |
+| `async_mode=none` | Synchronous sampling / training | Restricts policy-version lag |
+| `async_mode=one_step_off` | One-round-ahead sampling | Introduces generation-version lag |
+| `async_mode=fully_async` | Continuous overlap | Bound lag through `max_staleness` |
+
+Asynchrony can reduce waiting but changes sample freshness. Inspect ratios, KL, rewards and useful throughput rather than equating utilization with learning efficiency. Placement and execution order are separate dimensions.
+
+## Rewards, stability and evaluation
+
+Custom rewards implement `(completions, **columns) -> List[float]`, synchronously or asynchronously; see [Plugins](/en/docs/5.0.0.dev/interfaces/plugins). Include task correctness and handle timeouts, invalid outputs and external service failures. See [Agentic Training](/en/docs/5.0.0.dev/training/agentic) for tools and environments.
+
+Monitor total and component rewards, response length, zero-advantage fraction, grad_norm, KL and ratio outliers. Near-zero loss does not establish successful learning. Evaluate final checkpoints on independent tasks with identical sampling budgets and graders.
+
+See [performance protocols](/en/docs/5.0.0.dev/performance) and [curves](/en/performance). Measure full cycles, sampling and trainer compute separately; colocated v4 wall clock cannot be divided by disaggregated v5 compute time as a speedup. Complete algorithm entry points are in [examples/v5/rl/grpo](https://github.com/modelscope/ms-swift/tree/main/examples/v5/rl/grpo).

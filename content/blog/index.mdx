@@ -1,18 +1,6 @@
 ---
-title: Technical Blog
-description: Principles and practice of the SWIFT training stack.
+title: Technical Articles
+description: Principles, data flows and implementation of offline distillation and online RL.
 ---
 
-## Principles
-
-- [Choosing a Training Method](./training-choice.mdx) — SFT, preference alignment, distillation or RL: what each buys and costs.
-- [Supervised Fine-Tuning](./sft.mdx) — what the loss actually trains, and how to read the curve.
-- [Offline Distillation](./offline-distillation.mdx) — knowledge transfer through data.
-- [Online RL](./online-rl.mdx) — rollouts, rewards and group-relative advantages.
-- [twinkle-server Design](./twinkle-server.mdx) — multi-tenant training/inference serving.
-- [Async RL Design](./async-rl.mdx) — decoupling sampling from training.
-
-## Practice
-
-Hands-on write-ups land here as they are published; the runnable starting point
-is always the [examples tree](https://github.com/modelscope/ms-swift/tree/main/examples/v5).
+[Offline Distillation](./offline-distillation.mdx) covers teacher outputs, filtering and student SFT. [Online RL](./online-rl.mdx) covers GRPO, rewards, sampler placement and asynchrony. Both include runnable examples and evaluation guidance.

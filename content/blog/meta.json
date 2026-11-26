@@ -1,12 +1,4 @@
 {
   "title": "Blog",
-  "pages": [
-    "index",
-    "training-choice",
-    "sft",
-    "offline-distillation",
-    "online-rl",
-    "twinkle-server",
-    "async-rl"
-  ]
+  "pages": ["index", "offline-distillation", "online-rl"]
 }

@@ -1,5 +1,20 @@
 {
   "comment": "Locked content baselines. CI checks these commits out into .sources/. Update explicitly when content changes; never follow a moving branch.",
+  "release": {
+    "version": "5.0.0.dev",
+    "docs": [
+      "index", "get-started/index", "interfaces/index", "training/index",
+      "get-started/quick-start", "get-started/installation", "get-started/docker",
+      "get-started/models-and-datasets", "get-started/migration",
+      "interfaces/cli", "interfaces/custom-dataset", "interfaces/template",
+      "interfaces/plugins", "interfaces/mp-separation", "interfaces/server-client",
+      "training/agentic", "performance"
+    ],
+    "twinkle": [],
+    "blog": ["index", "offline-distillation", "online-rl"],
+    "webui": ["index", "quick-start", "features", "benchmarks"],
+    "services": ["index", "tinker", "modelscope"]
+  },
   "sources": {
     "swift": {
       "repo": "https://github.com/modelscope/ms-swift.git",

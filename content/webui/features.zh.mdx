@@ -1,21 +1,44 @@
 ---
 title: WebUI 功能
-description: 工作台每个页面做什么。
+description: 任务管理、模型对话、研究会话、工作流与可配置外观。
 ---
 
-| 页面 | 用途 |
-|---|---|
-| Chat | 模型对话：流式、工具调用、按模型分会话 |
-| Models | 注册本地/hub 模型；注册表供其他所有页面消费 |
-| Train | 表单或代码发起 SFT/RL；实时 loss/grad_norm、checkpoint |
-| Workflow | 拖拽画布组合训练组件（见[编排](./orchestration.mdx)） |
-| Research | AutoResearch 实验自动化（见 [AutoResearch](./autoresearch.mdx)） |
-| Eval | EvalScope 评测 |
-| Deploy | 注册模型的服务化生命周期 |
-| Export | checkpoint 导出 / 合并 / 推送 |
-| Plugins | loss/reward/数据集/模板插件管理 |
-| Scripts | 以 examples 树为底的可运行脚本库 |
-| Settings | 外观（浅/深/跟随系统）、语言（中文/English）、环境 |
+WebUI 将任务配置、运行记录和模型对话放在同一个工作台。页面展示状态，执行器启动 SWIFT 命令或脚本，日志与产物保存到运行机器。先完成[安装与首个任务](./quick-start.mdx)。
 
-UI 做的一切映射到同一套 SWIFT CLI/config 面——表单发起的 run 与你手写
-shell 脚本的 run 是同一个 run，UI 会展示等价命令。
+## 训练与任务生命周期
+
+train、eval、export、deploy 和 script 五类任务采用创建、列表、详情的操作方式。训练表单提供并行规格规划和显存估算；运行详情展示实时日志，从训练日志解析 loss / lr 曲线，跨运行页面可比较不同配置。
+
+提交前确认模型、数据、执行环境、设备和输出目录。运行失败时以进程退出和日志为依据；没有曲线可能表示尚未更新、日志不含该字段或解析尚未获得记录，不直接等同于训练失败。历史结果应连同原始命令和 checkpoint 保留。
+
+评测使用同一验证集与生成参数才有可比性。导出需要确认基础模型与 adapter；部署任务启动 attached `swift deploy` 进程，服务就绪后将 endpoint 登记到模型配置。停止部署会影响使用该 endpoint 的对话。
+
+## 模型配置与 Agent 对话
+
+模型配置管理 API endpoint 和本地部署的访问方式。对话支持流式输出、多模型并排比较与工具调用。比较模式把同一轮输入发给多个模型，采样设置和历史上下文也应保持一致。
+
+Agent 可以调用任务与文件工具，审批开关按会话控制。关闭审批会减少确认步骤，也会扩大自动执行权限；只在明确目标、预算、文件范围和服务权限后使用。模型返回的工具参数是待执行输入，不能当作可信的系统指令。
+
+插件扩展工具能力，技能提供工具和领域流程说明。构建时技能从 ms-swift 与 modelscope-skills 同步到 `public/skills/`，源仓库是编辑位置；`SWIFT_SKILLS_REF` 和 `MODELSCOPE_SKILLS_REF` 控制所取 ref。参考 [skills](https://github.com/modelscope/ms-swift/tree/main/skills)。
+
+## 研究会话与工作流
+
+研究会话保存目标、工具调用和每轮结论，支持跨轮次继续推进。一次研究可能创建多个训练与评测任务，应预先约定 GPU 时间、尝试次数、API 用量、停止条件和验证集；不能仅按“最后一次分数”评价整个研究过程。
+
+工作流以节点连接训练、评测、LoRA 合并和部署步骤，定义保存为 YAML。每次运行有独立目录和启动时定义快照，因此后续修改定义不应冒充之前运行的配置。检查节点输入产物与下游 checkpoint 路径，尤其是版本后缀和 adapter / 完整模型区别。
+
+研究质量的评测规则见 [Benchmarks](./benchmarks.mdx)。训练速度回归属于另一类指标，见[性能页](/zh/performance)。
+
+## 状态与文件
+
+任务记录位于 `SWIFT_WEBUI_HOME`，默认 `~/.swift/webui`。关闭页面不停止任务；重新打开页面从文件恢复运行视图。任务目录中的 `run.sh` 可用于复现，重放前确认依赖和设备，不直接复用会覆盖产物的路径。
+
+导出日志或分享任务时检查是否含 API token、私有数据路径或 prompt。长期任务也需要磁盘空间、checkpoint 保留策略和远程连接生命周期管理。
+
+## 外观与语言
+
+支持中英文与浅色、深色模式。Settings 可分别设置明暗配色，预设包括冰蓝、暖黄、青绿、淡紫和玫瑰；主色和背景色接受调色盘、`#RGB` 或 `#RRGGBB`。Enter 或移出输入框提交有效值，Escape 取消草稿。
+
+选择预设清除该组自定义颜色，不切换明暗模式。普通模式的偏好保存在运行机器 `~/.swift/webui-settings.json`，展览模式保留在浏览器会话。任务状态色和深色工作流画布不随主题主色改变。
+
+功能与启动契约见 [ms-webui README](https://github.com/modelscope/ms-webui#readme)；组件关系见 [MP 分离](/zh/docs/5.0.0.dev/interfaces/mp-separation)。

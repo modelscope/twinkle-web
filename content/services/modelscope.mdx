@@ -1,20 +1,76 @@
 ---
-title: ModelScope
-description: The model hub and compute platform the stack integrates with.
+title: ModelScope Services
+description: Model Hub, hosted twinkle training and inference APIs with access requirements and workflows.
 ---
 
-[ModelScope](https://modelscope.cn) is the default hub for SWIFT: `--model`
-and `--dataset` ids resolve there unless `--use_hf true` switches to Hugging
-Face. Weights cache under `MODELSCOPE_CACHE`.
+[ModelScope](https://www.modelscope.cn/) provides model / dataset hosting, compute and APIs. SWIFT uses ModelScope for downloads by default. Hosted training and API inference are distinct contracts and addresses.
 
-Platform services relevant to training:
+## Hub and local training
 
-- **Model hub** — the registered model families ship with ModelScope ids;
-  day-0 support means new models are trainable as soon as they land.
-- **Notebook / compute** — hosted GPU environments for running the examples
-  without local hardware (see the community resources in the ms-swift README).
-- **Studio deployment** — serving deployed models; account and billing
-  operations live on the platform, not in this documentation.
+```bash
+swift sft --model Qwen/Qwen3.5-4B \
+    --attn_impl flash_attention_2 \
+    --dataset 'swift/self-cognition#600' \
+    --tuner lora \
+    --output_dir output/modelscope
+```
 
-Links: [modelscope.cn](https://modelscope.cn) ·
-[ms-swift README](https://github.com/modelscope/ms-swift#readme).
+Bare IDs resolve to ModelScope; `--use_hf true` switches to Hugging Face. `MODELSCOPE_CACHE` controls the model cache. Private or gated models need account authorization, and download access does not waive licenses. See [Installation](/en/docs/5.0.0.dev/get-started/installation).
+
+## Hosted twinkle training
+
+The official [Training-as-a-Service reference](https://github.com/modelscope/twinkle/blob/main/docs/source_en/Usage%20Guide/Train-as-a-Service.md) documents `https://www.modelscope.cn/twinkle` as the training gateway with ModelScope access tokens. Register an account and obtain credentials from [access tokens](https://www.modelscope.cn/my/access/token). Supply them through environment variables, not shared code or logs.
+
+Models, access, ranks, capacity and quotas follow current platform capabilities. Query instead of treating a fixed documentation model as a live availability list:
+
+```bash
+pip install 'twinkle-kit[client]'
+```
+
+```python
+import os
+from twinkle_client import init_tinker_client
+
+
+init_tinker_client()
+from tinker import ServiceClient
+
+service = ServiceClient(
+    base_url='https://www.modelscope.cn/twinkle',
+    api_key=os.environ['MODELSCOPE_TOKEN'],
+)
+for item in service.get_server_capabilities().supported_models:
+    print(item.model_name)
+```
+
+Choose a returned model for which training is authorized, then follow [Tinker compatibility](./tinker.mdx) to create a LoRA client, submit data, update and save. The model is a served ID, not a local path. Saves return server checkpoint URIs used for resumption and sampling, not local output directories.
+
+See [complete client cookbooks](https://github.com/modelscope/twinkle/tree/main/cookbook/client/tinker). If access, model availability or capacity is insufficient, deploy [twinkle-server](/en/docs/5.0.0.dev/interfaces/server-client). Open-source interfaces do not imply unlimited hosted resources for every account.
+
+## API inference
+
+The inference endpoint is `https://api-inference.modelscope.cn/v1`, not the training gateway. WebUI model settings use it with a platform token and an available model ID. See [the official inference entry point](https://www.modelscope.cn/docs/model-service/API-Inference/intro).
+
+```python
+import os
+from openai import OpenAI
+
+
+client = OpenAI(
+    base_url='https://api-inference.modelscope.cn/v1',
+    api_key=os.environ['MODELSCOPE_TOKEN'],
+)
+response = client.chat.completions.create(
+    model=os.environ['MODELSCOPE_INFERENCE_MODEL'],
+    messages=[{'role': 'user', 'content': 'Hello'}],
+)
+print(response.choices[0].message.content)
+```
+
+Install `openai` for this example. Set `MODELSCOPE_INFERENCE_MODEL` to an actually available API model, not an arbitrary Hub ID. This endpoint does not provide forward/backward training and cannot serve as `swift sft --mode remote`'s gateway.
+
+## Before use
+
+Confirm authorization, licenses, pricing or trial quotas, retention / privacy policies, connectivity and request limits. Follow capabilities and platform announcements as resources change. Examples are not authorization to call or bill services; users approve actual training and generation budgets.
+
+See [WebUI Quick Start](/en/webui/quick-start) for models and tasks and [Performance](/en/performance) for training efficiency and regression.

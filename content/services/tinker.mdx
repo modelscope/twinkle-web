@@ -1,30 +1,70 @@
 ---
-title: Tinker-style Remote Training
-description: Training as an API — SWIFT's remote mode and twinkle-server.
+title: Tinker Training API
+description: Remote training with Tinker, twinkle compatibility and explicit loss semantics.
 ---
 
-Tinker popularized a simple contract: the client sends training requests
-(forward/backward, optimizer steps, sampling) to a service that owns the GPUs;
-the client never loads model weights. SWIFT's `--mode remote` implements the
-same shape against a twinkle-server:
+[Tinker](https://tinker-docs.thinkingmachines.ai/) provides a cloud training API: write loops locally while the service owns models and GPUs. Users control data, algorithms and update order without loading base weights. Hosted Tinker and self-hosted twinkle-server are different services, with separate credentials, capacity and checkpoints.
 
-```bash
-swift sft \
-    --mode remote \
-    --server_base_url https://your-twinkle-server.example \
-    --model Qwen/Qwen3.5-4B \
-    --tuner lora --dataset 'swift/self-cognition#600' \
-    --output_dir output
+## Contract
+
+```text
+ServiceClient → LoRA training client → Datum batches
+    → forward_backward → optim_step → save_state
+    → sampling client → sample
 ```
 
-- The local process is a single-process driver: no torchrun, no local device
-  mesh, no weights on the client.
-- `--model` names the **server-side served model id**, not a local path.
-- Checkpoints are saved server-side and returned as references; the client
-  decides what to export or push.
-- The same recipe runs locally (`--mode local`/`ray`) or remotely — the
-  training semantics do not change with placement.
+Encode data into tokens and loss inputs, submit forward/backward requests, then optimizer updates. Asynchronous operations return futures, resolved with `result()`. Training-state saves and sampling-weight saves serve different purposes: resumption needs optimizer state and algorithm progress.
 
-Deploy your own endpoint with twinkle-server (see the
-[twinkle reference](../../docs/5.0.0.dev/twinkle)), or point at a hosted
-service that speaks the same contract.
+Before using hosted Tinker, obtain platform access and API credentials and confirm models, pricing and limits. Follow the [official installation entry point](https://tinker-docs.thinkingmachines.ai/):
+
+```bash
+pip install tinker tinker-cookbook
+```
+
+Do not apply twinkle authentication patches to hosted Tinker or use ModelScope tokens as Tinker account credentials.
+
+## Connect Tinker SDK to twinkle-server
+
+Deploy [twinkle-server](/en/docs/5.0.0.dev/interfaces/server-client), then install its client:
+
+```bash
+pip install 'twinkle-kit[client]'
+```
+
+This complete script queries capabilities. Use actual server-issued credentials in `TWINKLE_SERVER_TOKEN`; the unauthenticated localhost example can omit it:
+
+```python
+import os
+from twinkle_client import init_tinker_client
+
+
+init_tinker_client()
+from tinker import ServiceClient
+
+service = ServiceClient(
+    base_url=os.environ.get('TWINKLE_SERVER_URL', 'http://127.0.0.1:8000'),
+    api_key=os.environ.get('TWINKLE_SERVER_TOKEN', ''),
+)
+for item in service.get_server_capabilities().supported_models:
+    print(item.model_name)
+```
+
+Initialize before importing `ServiceClient` to adapt twinkle headers and `twinkle://` paths. Initialization does not start a service, allocate GPUs or deploy a model.
+
+## Training and sampling
+
+For an already deployed model, create a handle with `create_lora_training_client(base_model='Qwen/Qwen3.5-4B', rank=8)`, send encoded `Datum` batches to `forward_backward(data, 'cross_entropy')`, and call `optim_step(AdamParams(...))`. Complete encoding, updates and saving are in [self_cognition.py](https://github.com/modelscope/twinkle/blob/main/cookbook/client/tinker/self_cognition.py).
+
+Finish accumulation, optimizer update and gradient clearing before saving training state. `save_state(name).result().path` returns a server checkpoint URI. Sampling requires a sampler application and a sampling client using saved weights; see [sample.py](https://github.com/modelscope/twinkle/blob/main/cookbook/client/tinker/sample.py).
+
+## Compatibility limits
+
+The bridge accepts `cross_entropy` and `importance_sampling`. Unsupported `ppo`, `cispo` and `dro` return HTTP 400 before enqueueing or changing gradients; they are not silently replaced with SFT.
+
+twinkle `importance_sampling` retains GRPO loss: clipping with default `epsilon=0.2`, optional KL with default `beta=0`, and sequence averaging. It differs from Tinker's unclipped, token-summed IS objective and is not numerically equivalent. The DPO extension uses the same entry point but requires `ref_logps` on every Datum, interleaved chosen/rejected examples and complete pairs per DP shard.
+
+Migration must verify objectives, normalization, masks, dispatch and checkpoint paths, not only URLs. See [the compatibility reference](https://github.com/modelscope/twinkle/blob/main/docs/source_en/Usage%20Guide/Server%20and%20Client/Tinker-Compatible-Client.md).
+
+## Capacity and cost
+
+Handles, ranks, resident adapters and request token counts are bounded by the service. Successful requests do not establish zero queueing or billing. Hosted pricing follows the provider; self-hosted costs belong to the operator. Start training only within authorized budgets, retaining request, usage and checkpoint records. See [ModelScope](./modelscope.mdx) for hosted twinkle access.
